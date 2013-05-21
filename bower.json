@@ -1,0 +1,12 @@
+{
+  "name": "gpub.js",
+  "version": "0.1.0",
+  "main": "./dist/gpub.min.js",
+  "ignore": [
+    "**/.*"
+  ],
+  "dependencies": {
+    "jquery": "~1.9.1",
+    "requirejs": "~2.1.4"
+  }
+}

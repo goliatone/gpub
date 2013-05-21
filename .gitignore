@@ -1,0 +1,9 @@
+temp
+.tmp
+dist
+libs/*
+.sass-cache
+node_modules
+app/components
+*.sublime-*
+.DS_Store
