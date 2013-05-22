@@ -7,15 +7,28 @@
  */
 /*global define:true*/
 /* jshint strict: false */
-define('gpub', ['jquery'], function($) {
+define('gpub', function($) {
 
-    var Gpub = function(config){
-        console.log('Gpub: Constructor!');
+    var options = {
+        methodMapping:{
+            publish:'publish',
+            subscribe:'subscribe',
+            unsubscribe:'unsubscribe'
+        }
     };
 
-    Gpub.prototype.init = function(){
-        console.log('Gpub: Init!');
-        return 'This is just a stub!';
+    var Gpub = function(config){
+
+    };
+
+
+    Gpub.prototype.simple = function($, src, map){
+        var o = $({});
+        src = src || {};
+        map = map || options.methodMapping;
+        src[map['publish']] = function() { o.trigger.apply(o, arguments);};
+        src[map['subscribe']] = function() { o.on.apply(o, arguments);};
+        src[map['unsubscribe']] = function() { o.off.apply(o, arguments);};
     };
 
     return Gpub;
