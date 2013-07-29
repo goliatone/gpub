@@ -20,7 +20,5 @@ define(['gpub', 'jquery'], function(Gpub, $) {
             var expected = 'This is just a stub!';
             expect(output).toEqual(expected);
         });
-        
     });
-
 });

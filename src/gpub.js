@@ -17,6 +17,11 @@ define('gpub', function($) {
         }
     };
 
+    /**
+     * [ description]
+     * @param  {[type]} config [description]
+     * @return {[type]}        [description]
+     */
     var Gpub = function(config){
         this.options = _defaults((config || {}), defaults);
 
