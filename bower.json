@@ -1,7 +1,10 @@
 {
   "name": "gpub.js",
   "version": "0.1.0",
-  "main": "./dist/gpub.min.js",
+  "main": [
+    "./dist/gpub.min.js",
+    "./dist/gpub.js"
+  ],
   "ignore": [
     "**/.*"
   ],
