@@ -218,7 +218,7 @@ define(['gpub', 'jquery'], function(Gpub, $) {
 /// STATIC METHODS
 //////////////////////////////////////////////////////
         it('should make a passed object bindable', function(){
-            var M = function(){this.data={}};
+            /*var M = function(){this.data={}};
             M.prototype.set = function(key, value){ this.data[key] = value; return this;};
             M.prototype.get = function(key,def){ return this.data[key] || def; };
 
@@ -231,7 +231,7 @@ define(['gpub', 'jquery'], function(Gpub, $) {
             }).on('change:test', function(e, p){
                 console.log('change.test: old %s new %s', p.old, p.value);
             }).set('test',44);
-
+            */
         });
 
 
