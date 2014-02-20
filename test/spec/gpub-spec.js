@@ -164,6 +164,77 @@ define(['gpub', 'jquery'], function(Gpub, $) {
             expect(handler.id).toEqual(item.id);
             expect(spy.args[0][0]).toHaveProperties('target','event');
         });
+//////////////////////////////////////////////////////
+/// NEW API
+//////////////////////////////////////////////////////
+        it('should execute in the context of the publisher',function(){
+            var test = {};
+            test.handler = function(){return this;};
+            var spy = sinon.spy(test,'handler');
+            item.on('topic',test.handler);
+
+            item.emit('topic');
+
+            expect(spy.returned(item)).toBeTruthy();
+        });
+
+        it('should have a fluid interface',function(){
+            var single   = sinon.spy();
+            var multiple = sinon.spy();
+            var opt = {options:true};
+            item.on('all',multiple).on('t2',single);
+
+            item.emit('t1',opt).emit('t2',opt).emit('t3',opt);
+
+            expect(single).toHaveBeenCalledOnce();
+            expect(single).toHaveBeenCalledWith(opt);
+
+            expect(multiple).toHaveBeenCalledThrice();
+            expect(multiple.args[0]).toIncludeObject(['t1',opt]);
+        });
+
+        it('should route all notices to a single handler if subscribed to the * channel',function(){
+            var single   = sinon.spy();
+            var multiple = sinon.spy();
+
+            var options = {options:true};
+            item.on('all',multiple);
+            item.on('topic',single);
+
+            item.emit('topic',options);
+            item.emit('topic2',options);
+            item.emit('topic3',options);
+
+            expect(single).toHaveBeenCalledOnce();
+            // expect(single).toHaveBeenCalledWith(options);
+
+            var callbackArguments = multiple.args[0];
+            expect(multiple).toHaveBeenCalledThrice();
+            expect(callbackArguments[0]).toBe('topic');
+            expect(callbackArguments[1]).toHaveProperties('event','options');
+        });
+
+//////////////////////////////////////////////////////
+/// STATIC METHODS
+//////////////////////////////////////////////////////
+        it('should make a passed object bindable', function(){
+            var M = function(){this.data={}};
+            M.prototype.set = function(key, value){ this.data[key] = value; return this;};
+            M.prototype.get = function(key,def){ return this.data[key] || def; };
+
+            M.prototype = new Gpub();
+            Gpub.bindable(M.prototype, 'set', 'get');
+            var model = new M();
+
+            model.set('test', 23).on('change', function(e, p){
+                console.log('change: old %s new %s', p.old, p.value);
+            }).on('change:test', function(e, p){
+                console.log('change.test: old %s new %s', p.old, p.value);
+            }).set('test',44);
+
+        });
+
+
 
     });
 });

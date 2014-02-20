@@ -11,10 +11,11 @@ define('gpub', function($) {
 
     var defaults = {
         methodMapping:{
-            publish:'publish',
-            subscribe:'subscribe',
-            unsubscribe:'unsubscribe'
-        }
+            emit:'publish',
+            on:'subscribe',
+            off:'unsubscribe',
+            emits:'subscribers'
+        },
     };
 
     /**
@@ -24,9 +25,9 @@ define('gpub', function($) {
      */
     var Gpub = function(config){
         this.options = _defaults((config || {}), defaults);
-
         this._callbacks = {};
     };
+
 
     //TODO: do we need to do deep extend?
     var _defaults = function(src, defaults) {
@@ -40,7 +41,7 @@ define('gpub', function($) {
     var _publish = function(list, args, options){
         var event, i, l;
         //Invoke callbacks. We need length on each iter
-        //cose it could change, unsubscribe.
+        //cose it could change, off.
         // args = _slice.call(arguments, 1);
         //var o;
         for(i = 0, l = list.length; i < l; i++){
@@ -60,21 +61,7 @@ define('gpub', function($) {
 
     var _slice = [].slice;
 
-    /**
-     * [ description]
-     * @param  {[type]} $   [description]
-     * @param  {[type]} src [description]
-     * @param  {[type]} map [description]
-     * @return {[type]}     [description]
-     */
-    Gpub.prototype.simple = function($, src, map){
-        var o = $({});
-        src = src || {};
-        map = map || this.options.methodMapping;
-        src[map['publish']] = function() { o.trigger.apply(o, arguments);};
-        src[map['subscribe']] = function() { o.on.apply(o, arguments);};
-        src[map['unsubscribe']] = function() { o.off.apply(o, arguments);};
-    };
+    
 
     /**
      * PubSub mixin.
@@ -86,7 +73,7 @@ define('gpub', function($) {
      * If we need more complex stuff:
      * 
      */
-    Gpub.prototype.subscribe = function(topic, callback, scope, options){
+    Gpub.prototype.on = function(topic, callback, scope, options){
         //Create _callbacks, unless we have it
         var topics = this._callbacks[topic] || (this._callbacks[topic] = []);
 
@@ -110,7 +97,7 @@ define('gpub', function($) {
      * @param  {[type]} topic [description]
      * @return {[type]}       [description]
      */
-    Gpub.prototype.subscribers = function(topic){
+    Gpub.prototype.emits = function(topic){
 
         return this._callbacks.hasOwnProperty(topic) && this._callbacks[topic].length > 0;
     };
@@ -122,7 +109,7 @@ define('gpub', function($) {
      * @param  {[type]} options [description]
      * @return {[type]}         [description]
      */
-    Gpub.prototype.publish = function(topic, options){
+    Gpub.prototype.emit = function(topic, options){
         //Turn args obj into real array
         var args = _slice.call(arguments, 1);
 
@@ -154,7 +141,7 @@ define('gpub', function($) {
      * @param  {Function} callback [description]
      * @return {[type]}            [description]
      */
-    Gpub.prototype.unsubscribe = function(topic, callback/*, scope*/){
+    Gpub.prototype.off = function(topic, callback/*, scope*/){
 
         var list, calls, i, l;
 
@@ -168,6 +155,49 @@ define('gpub', function($) {
 
         return this;
     };
+
+    Gpub.observable = function(src, options){
+       
+    };
+
+    Gpub.delegable = function(src, events){
+        var event,
+            e;
+        if(typeof event === 'string') events = events.split(' ');
+
+        events.forEach(function(event){
+            src['on'+event] = (function(handler){
+                this.on(event, handler);
+            }).bind(src);
+        });
+    };
+
+    Gpub.bindable = function(src, get, set, bind){
+        if(!('on' in src) || !('emit' in src)) this.observable(src);        
+
+        var _set = src[set], _get = src[get];
+
+        var method = function(key, value){
+            var old = _get.call(this, key),
+                out = _set.call(this, key, value),
+                evt = {odl:old, value:value};
+
+            if (this.emits('change')) this.emit('change', evt);
+            if (this.emits('change:' + key)) this.emit('change:'+key, evt);
+            return out;
+        };
+
+        if(bind) method.bind(src);
+
+        src[set] = method;
+    };
+
+    Gpub.prototype.publish     = Gpub.prototype.emit;
+    Gpub.prototype.subscribe   = Gpub.prototype.on;
+    Gpub.prototype.unsubscribe = Gpub.prototype.off;
+    Gpub.prototype.subscribers = Gpub.prototype.emits;
+    
+
 
     return Gpub;
 });
