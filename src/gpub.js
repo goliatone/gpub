@@ -9,34 +9,11 @@
 /* jshint strict: false */
 define('gpub', function($) {
 
-    var defaults = {
-        methodMapping:{
-            emit:'publish',
-            on:'subscribe',
-            off:'unsubscribe',
-            emits:'subscribers'
-        },
-    };
+   /**
+    * Gpub is a simple pub sub library.
+    */
+    var Gpub = function(){};
 
-    /**
-     * [ description]
-     * @param  {[type]} config [description]
-     * @return {[type]}        [description]
-     */
-    var Gpub = function(config){
-        this.options = _defaults((config || {}), defaults);
-        // this._callbacks = {};
-    };
-
-
-    //TODO: do we need to do deep extend?
-    var _defaults = function(src, defaults) {
-        for (var prop in defaults){
-            if(prop in src) continue;
-            src[prop] = defaults[prop];
-        }
-        return src;
-    };
 
     var _publish = function(list, args, options){
         var event, i, l;
