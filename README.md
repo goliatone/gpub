@@ -214,6 +214,6 @@ You can check out the contents of the examples folder.
 
 ## Release History
 
-* `v0.1.0`: Added mixin.
-* `v0.1.0`: Update API.
+* `v0.3.0`: Added mixin.
+* `v0.2.0`: Update API.
 * `v0.1.0`: Initial release.
