@@ -34,7 +34,6 @@ define(['gpub'], function(Gpub) {
         it('mixin objects should get notified of publisehd topics',function(){
             var spy = sinon.spy();
             var options = {options:true};
-            console.log('PROTOTPYE: ', Gpub);
             var Target = function(){};
             // var target = new Target();
             var target = {};
@@ -47,20 +46,43 @@ define(['gpub'], function(Gpub) {
         });
 
         it('should make a passed object bindable', function(){
-            /*var M = function(){this.data={}};
+            var spy = sinon.spy();
+
+            var M = function(){this.data={}};
             M.prototype.set = function(key, value){ this.data[key] = value; return this;};
             M.prototype.get = function(key,def){ return this.data[key] || def; };
-
-            M.prototype = new Gpub();
+            
             Gpub.bindable(M.prototype, 'set', 'get');
             var model = new M();
 
-            model.set('test', 23).on('change', function(e, p){
-                console.log('change: old %s new %s', p.old, p.value);
-            }).on('change:test', function(e, p){
-                console.log('change.test: old %s new %s', p.old, p.value);
-            }).set('test',44);
-            */
+            var event = {old:'oldValue', value:'newValue'};
+            model.set('test', event.old)
+                 .on('change', spy)
+                 .on('change:test', spy)
+                 .set('test', event.value);
+
+            expect(spy).toHaveBeenCalledTwice();
+        });
+
+        it('should make a passed object bindable', function(){
+            var spy = sinon.spy();
+
+            var M = function(){this.data={}};
+            M.prototype.set = function(key, value){ this.data[key] = value; return this;};
+            M.prototype.get = function(key,def){ return this.data[key] || def; };
+            
+            Gpub.bindable(M.prototype, 'set', 'get');
+            var model = new M();
+
+            var data = {old:'oldValue', value:'newValue'};
+
+            model.set('test', 'oldValue').on('change', function(event){
+                expect(event.old).toBe('oldValue');
+                expect(event.value).toBe('newValue');
+            }).on('change:test', function(event){
+                expect(event.old).toBe('oldValue');
+                expect(event.value).toBe('newValue');
+            }).set('test', 'newValue');
         });
 
 

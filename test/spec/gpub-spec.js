@@ -198,12 +198,12 @@ define(['gpub'], function(Gpub) {
             var multiple = sinon.spy();
 
             var options = {options:true};
-            item.on('all',multiple);
-            item.on('topic',single);
+            item.on('all', multiple);
+            item.on('topic', single);
 
-            item.emit('topic',options);
-            item.emit('topic2',options);
-            item.emit('topic3',options);
+            item.emit('topic',  options);
+            item.emit('topic2', options);
+            item.emit('topic3', options);
 
             expect(single).toHaveBeenCalledOnce();
             // expect(single).toHaveBeenCalledWith(options);
