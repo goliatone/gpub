@@ -63,7 +63,7 @@ define('gpub', function($) {
         
         if(typeof target === 'function') target = target.prototype;
         //TODO: Should we do Gpub.methods = ['on', 'off', 'emit', 'emits'];?
-        ['on', 'off', 'emit', 'emits', 'callbacks'].forEach(function(method){
+        Object.keys(source).forEach(function(method){
             target[method] = source[method];
         });
         return target;
@@ -180,7 +180,7 @@ define('gpub', function($) {
     
 
     Gpub.observable = function(target){
-        return _mixin(target, Gpub.prototype);
+        return _mixin(target || {}, Gpub.prototype);
     };
 
     Gpub.delegable = function(src, events, eventBuilder, glue){
@@ -217,6 +217,10 @@ define('gpub', function($) {
         src[set] = method;
     };
 
+    /**
+     * This is so that we can keep backwards compatibility
+     * with old API. It will be removed soon!
+     */
     Gpub.prototype.publish     = Gpub.prototype.emit;
     Gpub.prototype.subscribe   = Gpub.prototype.on;
     Gpub.prototype.unsubscribe = Gpub.prototype.off;
