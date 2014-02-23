@@ -2,13 +2,21 @@
 /* jshint strict: false */
 requirejs.config({
     paths: {
-        'jquery': '../lib/jquery/jquery',
-        'gpub': '../src/gpub'
+        'gpub': 'gpub'
     }
 });
 
-define(['gpub', 'jquery'], function (Gpub, $) {
-    console.log('Loading');
+define(['gpub'], function (Gpub) {
+    console.log('Loading ');
 	var gpub = new Gpub();
-	gpub.init();
+	window.Gpub = Gpub;
+
+	var User = function(){};
+	Gpub.observable(User);
+	var pepe = new User();
+	pepe.on('change', function(){
+		console.log('We are here');
+	});
+
+	pepe.emit('change');
 });
