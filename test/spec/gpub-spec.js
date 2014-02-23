@@ -130,9 +130,9 @@ define(['gpub', 'jquery'], function(Gpub, $) {
             //for now, we leave it as it is.
             var handler = {};
             handler.onTopic = function(options){
-                console.log('*****************');
-                console.log(arguments);
-                console.log('*****************');
+                // console.log('*****************');
+                // console.log(arguments);
+                // console.log('*****************');
 
                 handler.id = this.id;
                 options.age++;
@@ -142,9 +142,9 @@ define(['gpub', 'jquery'], function(Gpub, $) {
             handler.onTopicTwo = function(options){
                 options.age++;
                 expect(options.age).toBe(3);
-                console.log('*****************');
-                console.log(arguments);
-                console.log('*****************');
+                // console.log('*****************');
+                // console.log(arguments);
+                // console.log('*****************');
             };
 
             var spy = sinon.spy(handler, 'onTopic');
@@ -217,6 +217,28 @@ define(['gpub', 'jquery'], function(Gpub, $) {
 //////////////////////////////////////////////////////
 /// STATIC METHODS
 //////////////////////////////////////////////////////
+        it('mixin should extend a target object with Gpub methods',function(){
+            var target = {};
+            Gpub.observable(target);
+            var methods = ['on', 'off', 'emit', 'emits'];
+            expect(target).toHaveMethods(methods);
+        });
+
+        it('mixin objects should get notified of publisehd topics',function(){
+            var spy = sinon.spy();
+            var options = {options:true};
+            console.log('PROTOTPYE: ', Gpub);
+            var Target = function(){};
+            // var target = new Target();
+            var target = {};
+            Gpub.observable(target);
+
+            target.on('topic', spy);
+            target.emit('topic', options);
+            expect(spy).toHaveBeenCalledWith(options);
+            expect(spy).not.toHaveBeenCalledWith({});
+        });
+
         it('should make a passed object bindable', function(){
             /*var M = function(){this.data={}};
             M.prototype.set = function(key, value){ this.data[key] = value; return this;};
