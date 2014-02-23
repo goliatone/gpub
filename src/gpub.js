@@ -268,7 +268,26 @@ define('gpub', function($) {
     };
 
     /**
-     * It will monkey patch the given `src`
+     * It will monkey patch the given `src` setter
+     * method so that it triggers a `change` and `change:<key>` 
+     * event on update. The event object carries the old value
+     * and the current value, plus the updated property name.
+     *
+     * It's a quick way to generate a bindable model.
+     *
+     * ```javascript
+     *     var Model = function(){this.data={}};
+     *     Model.prototype.set = function(key, value) {
+     *         this.data[key] = value;
+     *         return this;
+     *     };
+     *     Model.prototype.get = function(key, def){
+     *         return this.data[key] || def;
+     *     };
+     *     Gpub.bindable(Model.prototype, 'set', 'get');
+     * ```    
+     *
+     * 
      * @param  {Object} src  Object to be augmented.
      * @param  {String} set  Name of `set` method in `src`
      * @param  {String} get  Name of `get` method in `src`
@@ -281,7 +300,7 @@ define('gpub', function($) {
         //TODO: DRY, make check all methods!!
         if(!('on' in src) || !('emit' in src)) this.observable(src);
 
-        var _set = src[set], _get = src[get];
+        var _set = src[set || 'set'], _get = src[get || 'get'];
 
         var method = function(key, value){
             var old = _get.call(this, key),
