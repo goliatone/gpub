@@ -1,20 +1,18 @@
-/*
- * gpub
- * https://github.com/goliatone/gpub
- *
- * Copyright (c) 2013 goliatone
- * Licensed under the MIT license.
+/**
+ * @author goliatone
+ * @url https://github.com/goliatone/gpub
+ * @copyright (c) 2013 goliatone
+ * @license MIT
+ * @title Gpub: Simple pub/sub
+ * @overview Gpub is an Event Dispatcher library. Or pub/sub.
+ * @module Gpub
  */
 /*global define:true*/
 /* jshint strict: false */
 define('gpub', function($) {
-
-   /**
-    * Gpub is a simple pub sub library.
-    */
-    var Gpub = function(){};
-
-
+////////////////////////////////////////////////////////
+/// PRIVATE METHODS
+////////////////////////////////////////////////////////
     var _publish = function(list, args, options){
         var event, i, l;
         //Invoke callbacks. We need length on each iter
@@ -47,19 +45,33 @@ define('gpub', function($) {
     };
 
     var _slice = [].slice;
+////////////////////////////////////////////////////////
+/// CONSTRUCTOR
+////////////////////////////////////////////////////////
 
-    
+   /**
+    * Gpub is a simple pub sub library.
+    * @class Gpub
+    * @constructor
+    */
+    var Gpub = function(){};
 
-    /**
-     * PubSub mixin.
-     * TODO: Handle scope!!! <= DONE
-     * TODO: Handle options! <= WE NEED TO CLONE THEM!
-     *
-     * Use:
-     * Module.include(PubSub);
-     * If we need more complex stuff:
-     * 
-     */
+
+
+////////////////////////////////////////////////////////
+/// PUBLIC METHODS
+////////////////////////////////////////////////////////    
+
+   /**
+    * Register an event listener.
+    * @param  {String}   topic    String indicating the event type
+    * @param  {Function} callback Callback to handle event topics.
+    * @param  {Object}   scope    We can dynamically change the scope of 
+    *                             the handler.
+    * @param  {Object}   options  Options object that will be sent with the
+    *                             event to all handler callbacks.
+    * @return {this}
+    */
     Gpub.prototype.on = function(topic, callback, scope, options){
         //Create _callbacks, unless we have it
         var topics = this.callbacks(topic);
@@ -80,9 +92,11 @@ define('gpub', function($) {
     };
 
     /**
-     * [ description]
-     * @param  {[type]} topic [description]
-     * @return {[type]}       [description]
+     * Checks to see if the provided topic has
+     * registered listeners and thus triggering
+     * and event.
+     * @param  {String} topic Event type.
+     * @return {this}
      */
     Gpub.prototype.emits = function(topic){
 
@@ -90,11 +104,15 @@ define('gpub', function($) {
     };
 
     /**
-     * TODO: Add 'all' support.
+     * Triggers an event so all registered listeners
+     * for the `topic` will be notified.
+     * Optionally, we can send along an options object.
      * 
-     * @param  {[type]} topic   [description]
-     * @param  {[type]} options [description]
-     * @return {[type]}         [description]
+     * @param  {String} topic   Event type.
+     * @param  {Object} options Options object, sent along
+     *                          in the event to all listeners 
+     *                          registered with `topic`.
+     * @return {this}
      */
     Gpub.prototype.emit = function(topic, options){
         //Turn args obj into real array
@@ -123,10 +141,16 @@ define('gpub', function($) {
     };
 
     /**
-     * [ description]
-     * @param  {[type]}   topic    [description]
-     * @param  {Function} callback [description]
-     * @return {[type]}            [description]
+     * Unregisters the given `callback` from `topic`
+     * events.
+     * If called without arguments, it will remove all 
+     * listeners.
+     * TODO: If we pass `topic` but no `callback` should we
+     * remove all listeners of `topic`?
+     * 
+     * @param  {String}   topic    Event type.
+     * @param  {Function} callback Listener we want to remove.
+     * @return {this}
      */
     Gpub.prototype.off = function(topic, callback/*, scope*/){
 
@@ -146,6 +170,18 @@ define('gpub', function($) {
         return this;
     };
 
+    /**
+     * Returns all registered listeners for
+     * a given `topic`.
+     * If called without `topic` will return all
+     * callbacks.
+     * 
+     * Used internally.
+     * 
+     * @param  {String} topic Event type.
+     * @return {Object|Array}
+     * @private
+     */
     Gpub.prototype.callbacks = function(topic){
         this._callbacks = this._callbacks || {};
         if(!topic) return this._callbacks;
@@ -154,12 +190,61 @@ define('gpub', function($) {
 
     
 
-    
-
+////////////////////////////////////////////////////////
+/// STATIC METHODS
+//////////////////////////////////////////////////////// 
+    /**
+     * Observable mixin. It will add `Gpub` methods
+     * to the given `target`.
+     * If we provide a `constructor` it will extend
+     * it's prototype.
+     * 
+     * ```javascript
+     *     var Model = function(){};
+     *     Gpub.observable(Model);
+     *     var user = new Model();
+     *     user.on('something', function(){console.log('Hola!')});
+     *     user.emit('something');
+     * ```
+     * 
+     * @param  {Object|Function} target
+     * @return {Object|Function} Returns the given object.
+     */
     Gpub.observable = function(target){
         return _mixin(target || {}, Gpub.prototype);
     };
 
+    /**
+     * It will create methods in `src` to register
+     * handlers for all passed events.
+     * 
+     * If we pass:
+     *     var Model = function(){};
+     *     var events = ['change', 'sync'];
+     *     Gpub.delegable(Model.prototype, events);
+     *     var user = new Model();
+     *     user.onsync(function(e){console.log('sync\'d', e)});
+     *     user.onchange(function(e){console.log('changed', e)});
+     *     user.emit('change').emit('sync');
+     *
+     * By default, methods generated will be in the form
+     * of **on**+**event**.
+     * We can pass in a custom method name generator.
+     *
+     * If the passed in `src` object is not an instance
+     * of `Gpub` it will be augmented with the mixin.
+     * 
+     * @param  {Object} src          Object to extend
+     *                               with methods.
+     * @param  {Array|String} events       Events for which we want to
+     *                                     generate delegate methods.
+     * @param  {Function} eventBuilder Function to generate the delegate
+     *                                 method name.
+     * @param  {String} glue         If we pass in a string, this
+     *                               will be used to split into different
+     *                               event types.
+     * @return {Object}              Returns passed in object.
+     */
     Gpub.delegable = function(src, events, eventBuilder, glue){
         //TODO: DRY, make check all methods!!
         if(!('on' in src) || !('emit' in src)) this.observable(src);
@@ -178,8 +263,18 @@ define('gpub', function($) {
             if(bind) method.bind(src);
             src[eventBuilder(event)] = method;
         });
+
+        return src;
     };
 
+    /**
+     * It will monkey patch the given `src`
+     * @param  {Object} src  Object to be augmented.
+     * @param  {String} set  Name of `set` method in `src`
+     * @param  {String} get  Name of `get` method in `src`
+     * @param  {Boolean} bind Should we bind the generated method?
+     * @return {Object}      Returns the passed in object.
+     */
     Gpub.bindable = function(src, set, get, bind){
         // var bind = (typeof src === 'function');
         // src = bind ? src.prototype : src;
@@ -202,8 +297,13 @@ define('gpub', function($) {
         if(bind) method.bind(src);
 
         src[set] = method;
+
+        return src;
     };
 
+////////////////////////////////////////////////////////
+/// LEGACY METHODS: This will be removed soon.
+////////////////////////////////////////////////////////
     /**
      * This is so that we can keep backwards compatibility
      * with old API. It will be removed soon!
