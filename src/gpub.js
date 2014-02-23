@@ -37,7 +37,7 @@ define('gpub', function($) {
         }
         return src;
     };
-
+    
     var _publish = function(list, args, options){
         var event, i, l;
         //Invoke callbacks. We need length on each iter
@@ -197,7 +197,10 @@ define('gpub', function($) {
         });
     };
 
-    Gpub.bindable = function(src, get, set, bind){
+    Gpub.bindable = function(src, set, get, bind){
+        // var bind = (typeof src === 'function');
+        // src = bind ? src.prototype : src;
+
         if(!('on' in src) || !('emit' in src)) this.observable(src);
 
         var _set = src[set], _get = src[get];
@@ -205,7 +208,7 @@ define('gpub', function($) {
         var method = function(key, value){
             var old = _get.call(this, key),
                 out = _set.call(this, key, value),
-                evt = {odl:old, value:value};
+                evt = {old:old, value:value};
 
             if (this.emits('change')) this.emit('change', evt);
             if (this.emits('change:' + key)) this.emit('change:'+key, evt);
