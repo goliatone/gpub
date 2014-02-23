@@ -37,7 +37,7 @@ define('gpub', function($) {
         }
         return src;
     };
-    
+
     var _publish = function(list, args, options){
         var event, i, l;
         //Invoke callbacks. We need length on each iter
@@ -54,7 +54,7 @@ define('gpub', function($) {
             options.target = event.target;//shortcut to access target.
             // o = $.extend({},options);
 
-            if(!event.callback.apply(event.scope, args)) break;
+            if(event.callback.apply(event.scope, args) === false) break;
             // if(!event.callback.apply(event.scope, a)) break;
         }
     };
@@ -184,23 +184,29 @@ define('gpub', function($) {
     };
 
     Gpub.delegable = function(src, events, eventBuilder, glue){
-        var event;
+        //TODO: DRY, make check all methods!!
+        if(!('on' in src) || !('emit' in src)) this.observable(src);
 
         eventBuilder || (eventBuilder = function(e){ return 'on'+e;});
             
-        if(typeof event === 'string') events = events.split(glue || ' ');
+        if(typeof events === 'string') events = events.split(glue || ' ');
 
+        var method, bind = typeof src === 'function';
         events.forEach(function(event){
-            src[eventBuilder(event)] = (function(handler){
+            method = function(handler){
+                if(!handler) return this;
                 this.on(event, handler);
-            }).bind(src);
+                return this;
+            };
+            if(bind) method.bind(src);
+            src[eventBuilder(event)] = method;
         });
     };
 
     Gpub.bindable = function(src, set, get, bind){
         // var bind = (typeof src === 'function');
         // src = bind ? src.prototype : src;
-
+        //TODO: DRY, make check all methods!!
         if(!('on' in src) || !('emit' in src)) this.observable(src);
 
         var _set = src[set], _get = src[get];
@@ -208,7 +214,8 @@ define('gpub', function($) {
         var method = function(key, value){
             var old = _get.call(this, key),
                 out = _set.call(this, key, value),
-                evt = {old:old, value:value};
+                //TODO: _buildEvent({old:old, value:value, target:this});
+                evt = {old:old, value:value, property:key};
 
             if (this.emits('change')) this.emit('change', evt);
             if (this.emits('change:' + key)) this.emit('change:'+key, evt);
