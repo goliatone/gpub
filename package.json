@@ -26,6 +26,6 @@
     "matchdep": "~0.1.1",
     "grunt-google-cdn": "~0.1.1",
     "markdown": "~0.4.0",
-    "jsdox": "~0.2.4",
+    "jsdox": "~0.2.4"
   }
 }
