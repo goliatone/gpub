@@ -25,7 +25,7 @@ define('gpub', function($) {
      */
     var Gpub = function(config){
         this.options = _defaults((config || {}), defaults);
-        this._callbacks = {};
+        // this._callbacks = {};
     };
 
 
@@ -54,9 +54,19 @@ define('gpub', function($) {
             options.target = event.target;//shortcut to access target.
             // o = $.extend({},options);
 
-            if(!event.callback.apply(event.scope, args)) break;
+            if(event.callback.apply(event.scope, args) === false) break;
             // if(!event.callback.apply(event.scope, a)) break;
         }
+    };
+
+    var _mixin = function(target, source){
+        
+        if(typeof target === 'function') target = target.prototype;
+        //TODO: Should we do Gpub.methods = ['on', 'off', 'emit', 'emits'];?
+        Object.keys(source).forEach(function(method){
+            target[method] = source[method];
+        });
+        return target;
     };
 
     var _slice = [].slice;
@@ -75,7 +85,7 @@ define('gpub', function($) {
      */
     Gpub.prototype.on = function(topic, callback, scope, options){
         //Create _callbacks, unless we have it
-        var topics = this._callbacks[topic] || (this._callbacks[topic] = []);
+        var topics = this.callbacks(topic);
 
         //Create an array for the given topic key, unless we have it,
         //then append the callback to the array
@@ -99,7 +109,7 @@ define('gpub', function($) {
      */
     Gpub.prototype.emits = function(topic){
 
-        return this._callbacks.hasOwnProperty(topic) && this._callbacks[topic].length > 0;
+        return this.callbacks().hasOwnProperty(topic) && this.callbacks(topic).length > 0;
     };
 
     /**
@@ -122,7 +132,7 @@ define('gpub', function($) {
 
         var list, calls, all;
         //return if no callback
-        if(!(calls = this._callbacks)) return this;
+        if(!(calls = this.callbacks())) return this;
         //get listeners, if none and no global handlers, return.
         if(!(list = calls[topic]) && !calls['all']) return this;
         //if global handlers, append to list.
@@ -145,7 +155,10 @@ define('gpub', function($) {
 
         var list, calls, i, l;
 
-        if(!(calls = this._callbacks)) return this;
+        //TODO: Should we make a different Gpub::stop() method?
+        if(!topic && !callback) this._callbacks = {};
+
+        if(!(calls = this.callbacks())) return this;
 
         if(!(list  = calls[topic])) return this;
 
@@ -156,31 +169,53 @@ define('gpub', function($) {
         return this;
     };
 
-    Gpub.observable = function(src, options){
-       
+    Gpub.prototype.callbacks = function(topic){
+        this._callbacks = this._callbacks || {};
+        if(!topic) return this._callbacks;
+        return this._callbacks[topic] || (this._callbacks[topic] = []);
     };
 
-    Gpub.delegable = function(src, events){
-        var event,
-            e;
-        if(typeof event === 'string') events = events.split(' ');
+    
 
+    
+
+    Gpub.observable = function(target){
+        return _mixin(target || {}, Gpub.prototype);
+    };
+
+    Gpub.delegable = function(src, events, eventBuilder, glue){
+        //TODO: DRY, make check all methods!!
+        if(!('on' in src) || !('emit' in src)) this.observable(src);
+
+        eventBuilder || (eventBuilder = function(e){ return 'on'+e;});
+            
+        if(typeof events === 'string') events = events.split(glue || ' ');
+
+        var method, bind = typeof src === 'function';
         events.forEach(function(event){
-            src['on'+event] = (function(handler){
+            method = function(handler){
+                if(!handler) return this;
                 this.on(event, handler);
-            }).bind(src);
+                return this;
+            };
+            if(bind) method.bind(src);
+            src[eventBuilder(event)] = method;
         });
     };
 
-    Gpub.bindable = function(src, get, set, bind){
-        if(!('on' in src) || !('emit' in src)) this.observable(src);        
+    Gpub.bindable = function(src, set, get, bind){
+        // var bind = (typeof src === 'function');
+        // src = bind ? src.prototype : src;
+        //TODO: DRY, make check all methods!!
+        if(!('on' in src) || !('emit' in src)) this.observable(src);
 
         var _set = src[set], _get = src[get];
 
         var method = function(key, value){
             var old = _get.call(this, key),
                 out = _set.call(this, key, value),
-                evt = {odl:old, value:value};
+                //TODO: _buildEvent({old:old, value:value, target:this});
+                evt = {old:old, value:value, property:key};
 
             if (this.emits('change')) this.emit('change', evt);
             if (this.emits('change:' + key)) this.emit('change:'+key, evt);
@@ -192,6 +227,10 @@ define('gpub', function($) {
         src[set] = method;
     };
 
+    /**
+     * This is so that we can keep backwards compatibility
+     * with old API. It will be removed soon!
+     */
     Gpub.prototype.publish     = Gpub.prototype.emit;
     Gpub.prototype.subscribe   = Gpub.prototype.on;
     Gpub.prototype.unsubscribe = Gpub.prototype.off;

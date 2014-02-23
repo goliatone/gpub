@@ -9,29 +9,29 @@ module.exports = function (grunt) {
     require('matchdep').filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
     // configurable paths
-    var yeomanConfig = {
+    var config = {
         name: 'gpub',
         src: 'src',
         dist: 'dist',
-        example:'example'
+        libs: 'libs',
+        example:'examples'
     };
 
     try {
-        yeomanConfig.src = require('./component.json').appPath || yeomanConfig.src;
+        config.src = require('./component.json').appPath || config.src;
     } catch (e) {}
 
     grunt.initConfig({
-        yeoman: yeomanConfig,
+        config: config,
         livereload:{
             port: 35723
         },
         watch: {
             livereload: {
                 files: [
-                    '<%= yeoman.src %>/{,*/}*.html',
-                    '{.tmp,<%= yeoman.src %>}/styles/{,*/}*.css',
-                    '{.tmp,<%= yeoman.src %>}/scripts/{,*/}*.js',
-                    '<%= yeoman.src %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+                    '<%= config.example %>/*.html',
+                    '<%= config.example %>/*.js',
+                    '{.tmp,<%= config.src %>}/*.js'
                 ],
                 tasks: ['livereload']
             }
@@ -48,13 +48,16 @@ module.exports = function (grunt) {
                         return [
                             lrSnippet,
                             mountFolder(connect, '.tmp'),
-                            mountFolder(connect, yeomanConfig.src)
+                            mountFolder(connect, config.src),
+                            mountFolder(connect, config.libs),
+                            mountFolder(connect, config.example)
                         ];
                     }
                 }
             },
             test: {
                 options: {
+                    port:4545,
                     middleware: function (connect) {
                         return [
                             mountFolder(connect, '.tmp'),
@@ -78,8 +81,8 @@ module.exports = function (grunt) {
                     dot: true,
                     src: [
                         '.tmp',
-                        '<%= yeoman.dist %>/*',
-                        '!<%= yeoman.dist %>/.git*'
+                        '<%= config.dist %>/*',
+                        '!<%= config.dist %>/.git*'
                     ]
                 }]
             },
@@ -91,7 +94,7 @@ module.exports = function (grunt) {
             },
             all: [
                 'Gruntfile.js',
-                '<%= yeoman.src %>/{,*/}*.js'
+                '<%= config.src %>/{,*/}*.js'
             ]
         },
         karma: {
@@ -115,9 +118,9 @@ module.exports = function (grunt) {
         concat: {
             dist: {
                 files: {
-                    '<%= yeoman.dist %>/<%= yeoman.name %>.js': [
+                    '<%= config.dist %>/<%= config.name %>.js': [
                         '.tmp/{,*/}*.js',
-                        '<%= yeoman.src %>/{,*/}*.js'
+                        '<%= config.src %>/{,*/}*.js'
                     ]
                 }
             }
@@ -125,8 +128,8 @@ module.exports = function (grunt) {
         uglify: {
             dist: {
                 files: {
-                    '<%= yeoman.dist %>/<%= yeoman.name %>.min.js': [
-                        '<%= yeoman.dist %>/<%= yeoman.name %>.js'
+                    '<%= config.dist %>/<%= config.name %>.min.js': [
+                        '<%= config.dist %>/<%= config.name %>.js'
                     ]
                 }
             }
@@ -136,8 +139,8 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     dot: true,
-                    cwd: '<%= yeoman.src %>',
-                    dest: '<%= yeoman.dist %>',
+                    cwd: '<%= config.src %>',
+                    dest: '<%= config.dist %>',
                     src: []
                 }]
             }
