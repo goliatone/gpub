@@ -7,14 +7,6 @@
 /* jshint strict: false */
 define(['gpub'], function(Gpub) {
 
-    describe('just checking', function() {
-
-        it('Gpub should be loaded', function() {
-            expect(Gpub).toBeTruthy();
-            var gpub = new Gpub();
-            expect(gpub).toBeTruthy();
-        });
-    });
     var item;
     beforeEach(function(){
         item = new Gpub();
@@ -85,6 +77,61 @@ define(['gpub'], function(Gpub) {
             }).set('test', 'newValue');
         });
 
+        it('should create delegated methods to register callback style', function(){
+            var events = ['change', 'sync'];
+            var M = function(){};
+            var user = new M();
+
+            Gpub.delegable(M.prototype, events);
+            expect(user).toHaveMethods(['onchange', 'onsync']);
+
+        });
+
+        it('should create delegated methods to register callback style', function(){
+            var events = ['change', 'sync'];
+            
+            var M = function(){};
+            Gpub.delegable(M.prototype, events);
+            
+            var user = new M();
+
+            expect(user.emits('sync')).toBeFalsy();
+            expect(user.emits('change')).toBeFalsy();
+            
+            user.onchange(null);
+            user.onsync(null);
+
+            expect(user.emits('sync')).toBeFalsy();
+            expect(user.emits('change')).toBeFalsy();
+
+            var spy = sinon.spy();
+
+            user.onchange(spy);
+            user.onsync(spy);
+
+            expect(user.emits('sync')).toBeTruthy();
+            expect(user.emits('change')).toBeTruthy();
+
+        });
+
+        it('should trigger delegated methods on emit for registered events', function(){
+            var events = ['change', 'sync'];
+            
+            var M = function(){};
+            Gpub.delegable(M.prototype, events);
+            
+            var user = new M();
+            
+            var spy = sinon.spy();
+
+            user.onchange(spy);
+            user.onsync(spy);
+
+            user.emit('sync').emit('change');
+
+            expect(spy).toHaveBeenCalledTwice();
+
+        });
 
 
     });
