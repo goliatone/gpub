@@ -17,7 +17,9 @@ define(['gpub'], function(Gpub) {
     });
     var item;
     beforeEach(function(){
-        item = new Gpub();
+        var Target = function(){};
+        Gpub.observable(Target);
+        item = new Target();
     });
 
     describe('gpub', function(){
