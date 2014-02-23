@@ -1,23 +1,3 @@
-# Gpub
-
-[![Build Status](https://secure.travis-ci.org/goliatone/gpub.png)](http://travis-ci.org/goliatone/gpub)
-
-Tiny PubSub module.
-
-## Getting Started
-Download the [production version][min] or the [development version][max].
-
-[min]: https://raw.github.com/goliatone/gpub/master/dist/gpub.min.js
-[max]: https://raw.github.com/goliatone/gpub/master/dist/gpub.js
-
-
-## Documentation
-
-To generate documentation, run:
-
-`jsdox --output docs src/`
-
-
 Gpub: Simple pub/sub
 ====================
 *(c) 2013 goliatone*
@@ -209,11 +189,5 @@ If we don't specify a `set` or `get` value, then
 
 *Object*,  Returns the passed in object.
 
-## Examples
-You can check out the contents of the examples folder.
-
-## Release History
-
-* `v0.1.0`: Added mixin.
-* `v0.1.0`: Update API.
-* `v0.1.0`: Initial release.
+class Gpub.Gpub
+---------------
