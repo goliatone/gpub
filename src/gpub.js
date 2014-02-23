@@ -286,7 +286,8 @@ define('gpub', function($) {
      *     };
      *     Gpub.bindable(Model.prototype, 'set', 'get');
      * ```    
-     *
+     * If we don't specify a `set` or `get` value, then
+     * `set` and `get` will be used by default.
      * 
      * @param  {Object} src  Object to be augmented.
      * @param  {String} set  Name of `set` method in `src`
@@ -323,13 +324,17 @@ define('gpub', function($) {
 ////////////////////////////////////////////////////////
 /// LEGACY METHODS: This will be removed soon.
 ////////////////////////////////////////////////////////
-    /**
+    /*
      * This is so that we can keep backwards compatibility
      * with old API. It will be removed soon!
      */
+    /**@deprecated*/
     Gpub.prototype.publish     = Gpub.prototype.emit;
+    /**@deprecated*/
     Gpub.prototype.subscribe   = Gpub.prototype.on;
+    /**@deprecated*/
     Gpub.prototype.unsubscribe = Gpub.prototype.off;
+    /**@deprecated*/
     Gpub.prototype.subscribers = Gpub.prototype.emits;
     
 
