@@ -1,0 +1,731 @@
+[
+  {
+    "tags": [
+      {
+        "type": "url",
+        "string": "https://github.com/goliatone/gpub"
+      },
+      {
+        "type": "copyright",
+        "string": "(c) 2013 goliatone"
+      },
+      {
+        "type": "license",
+        "string": "MIT"
+      },
+      {
+        "type": "title",
+        "string": "Gpub: Simple pub/sub"
+      },
+      {
+        "type": "version",
+        "string": "0.3.0"
+      },
+      {
+        "type": "overview",
+        "string": "Gpub is an Event Dispatcher library. Or pub/sub."
+      },
+      {
+        "type": "module",
+        "string": "Gpub"
+      }
+    ],
+    "description": {
+      "full": "<p>@author goliatone</p>",
+      "summary": "<p>@author goliatone</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "define('gpub', function($) {"
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Array"
+        ],
+        "name": "list",
+        "description": "List of event objects"
+      },
+      {
+        "type": "param",
+        "types": [
+          "Array"
+        ],
+        "name": "args",
+        "description": "Arguments for callback"
+      },
+      {
+        "type": "param",
+        "types": [
+          "Object"
+        ],
+        "name": "options",
+        "description": "Options object"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Boolean",
+          "undefined"
+        ],
+        "description": "If callback returns false"
+      },
+      {
+        "type": "",
+        "string": "it breaks the loop."
+      },
+      {
+        "type": "function",
+        "string": ""
+      },
+      {
+        "type": "private",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Publish method.</p>",
+      "summary": "<p>Publish method.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "var _publish = function(list, args, options){\n        var event, i, l;\n        //Invoke callbacks. We need length on each iter\n        //cose it could change, off.\n        // args = _slice.call(arguments, 1);\n        //var o;\n        for(i = 0, l = list.length; i < l; i++){\n            event = list[i];\n            if(!event) continue;\n\n            //We want to have a dif. options object\n            //for each callback;\n            options.event  = event;\n            options.target = event.target;//shortcut to access target.\n            // o = $.extend({},options);\n\n            if(event.callback.apply(event.scope, args) === false) break;\n            // if(!event.callback.apply(event.scope, a)) break;\n        }\n    };",
+    "ctx": {
+      "type": "function",
+      "name": "_publish",
+      "string": "_publish()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Object",
+          "Function"
+        ],
+        "name": "target",
+        "description": "Object to be extended"
+      },
+      {
+        "type": "param",
+        "types": [
+          "Object",
+          "Function"
+        ],
+        "name": "source",
+        "description": "Object that lends props."
+      },
+      {
+        "type": "return",
+        "types": [
+          "Object",
+          "Function"
+        ],
+        "description": "Rerutn target object."
+      },
+      {
+        "type": "function",
+        "string": ""
+      },
+      {
+        "type": "private",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Mixin util.</p>",
+      "summary": "<p>Mixin util.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "var _mixin = function(target, source){\n        \n        if(typeof target === 'function') target = target.prototype;\n        //TODO: Should we do Gpub.methods = ['on', 'off', 'emit', 'emits'];?\n        Object.keys(source).forEach(function(method){\n            target[method] = source[method];\n        });\n        return target;\n    };\n\n    var _slice = [].slice;",
+    "ctx": {
+      "type": "function",
+      "name": "_mixin",
+      "string": "_mixin()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "class",
+        "string": "Gpub"
+      },
+      {
+        "type": "constructor",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Gpub is a simple pub sub library.</p>",
+      "summary": "<p>Gpub is a simple pub sub library.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "var Gpub = function(){};",
+    "ctx": {
+      "type": "function",
+      "name": "Gpub",
+      "string": "Gpub()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "topic",
+        "description": "String indicating the event type"
+      },
+      {
+        "type": "param",
+        "types": [
+          "Function"
+        ],
+        "name": "callback",
+        "description": "Callback to handle event topics."
+      },
+      {
+        "type": "param",
+        "types": [
+          "Object"
+        ],
+        "name": "scope",
+        "description": "We can dynamically change the scope of "
+      },
+      {
+        "type": "",
+        "string": "the handler."
+      },
+      {
+        "type": "param",
+        "types": [
+          "Object"
+        ],
+        "name": "options",
+        "description": "Options object that will be sent with the"
+      },
+      {
+        "type": "",
+        "string": "event to all handler callbacks."
+      },
+      {
+        "type": "return",
+        "types": [
+          "this"
+        ],
+        "description": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Register an event listener.</p>",
+      "summary": "<p>Register an event listener.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.on = function(topic, callback, scope, options){\n        //Create _callbacks, unless we have it\n        var topics = this.callbacks(topic);\n\n        //Create an array for the given topic key, unless we have it,\n        //then append the callback to the array\n        // topic.push(callback);\n        var event = {};\n        event.topic = topic;\n        event.callback = callback;\n        event.scope = scope || this;\n        event.target = this;\n        // event.options = options || {};//_merge((options || {}),{target:this});\n\n        topics.push(event);\n\n        return this;\n    };",
+    "ctx": {
+      "type": "method",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "on",
+      "string": "Gpub.prototype.on()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "topic",
+        "description": "Event type."
+      },
+      {
+        "type": "return",
+        "types": [
+          "this"
+        ],
+        "description": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Checks to see if the provided topic has<br />registered listeners and thus triggering<br />and event.</p>",
+      "summary": "<p>Checks to see if the provided topic has<br />registered listeners and thus triggering<br />and event.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.emits = function(topic){\n\n        return this.callbacks().hasOwnProperty(topic) && this.callbacks(topic).length > 0;\n    };",
+    "ctx": {
+      "type": "method",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "emits",
+      "string": "Gpub.prototype.emits()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "topic",
+        "description": "Event type."
+      },
+      {
+        "type": "param",
+        "types": [
+          "Object"
+        ],
+        "name": "options",
+        "description": "Options object, sent along"
+      },
+      {
+        "type": "",
+        "string": "in the event to all listeners "
+      },
+      {
+        "type": "",
+        "string": "registered with `topic`."
+      },
+      {
+        "type": "return",
+        "types": [
+          "this"
+        ],
+        "description": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Triggers an event so all registered listeners<br />for the <code>topic</code> will be notified.<br />Optionally, we can send along an options object.</p>",
+      "summary": "<p>Triggers an event so all registered listeners<br />for the <code>topic</code> will be notified.<br />Optionally, we can send along an options object.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.emit = function(topic, options){\n        //Turn args obj into real array\n        var args = _slice.call(arguments, 1);\n\n        //get the first arg, topic name\n        options = options || {};\n\n        //include the options into the arguments, making sure that we\n        //send it along if we just created it here.\n        args.push(options);\n\n        var list, calls, all;\n        //return if no callback\n        if(!(calls = this.callbacks())) return this;\n        //get listeners, if none and no global handlers, return.\n        if(!(list = calls[topic]) && !calls['all']) return this;\n        //if global handlers, append to list.\n        //if((all = calls['all'])) list = (list || []).concat(all);\n\n        if((all = calls['all'])) _publish.call(this, all, _slice.call(arguments, 0), options);\n        // if((all = calls['all'])) _publish.call(this, all, [topic].concat(args));\n        if(list) _publish.call(this,list, args, options);\n\n        return this;\n    };",
+    "ctx": {
+      "type": "method",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "emit",
+      "string": "Gpub.prototype.emit()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "topic",
+        "description": "Event type."
+      },
+      {
+        "type": "param",
+        "types": [
+          "Function"
+        ],
+        "name": "callback",
+        "description": "Listener we want to remove."
+      },
+      {
+        "type": "return",
+        "types": [
+          "this"
+        ],
+        "description": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Unregisters the given <code>callback</code> from <code>topic</code><br />events.</p>\n\n<p>If called without arguments, it will remove all <br />listeners.</p>\n\n<p>TODO: If we pass <code>topic</code> but no <code>callback</code> should we<br />remove all listeners of <code>topic</code>?</p>",
+      "summary": "<p>Unregisters the given <code>callback</code> from <code>topic</code><br />events.</p>",
+      "body": "<p>If called without arguments, it will remove all <br />listeners.</p>\n\n<p>TODO: If we pass <code>topic</code> but no <code>callback</code> should we<br />remove all listeners of <code>topic</code>?</p>"
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.off = function(topic, callback",
+    "ctx": {
+      "type": "method",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "off",
+      "string": "Gpub.prototype.off()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>scope</p>",
+      "summary": "<p>scope</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "{\n\n        var list, calls, i, l;\n\n        //TODO: Should we make a different Gpub::stop() method?\n        if(!topic && !callback) this._callbacks = {};\n\n        if(!(calls = this.callbacks())) return this;\n\n        if(!(list  = calls[topic])) return this;\n\n        for(i = 0, l = list.length; i < l; i++){\n            if(list[i].callback === callback) list.splice(i,1);\n        }\n\n        return this;\n    };"
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "topic",
+        "description": "Event type."
+      },
+      {
+        "type": "return",
+        "types": [
+          "Object",
+          "Array"
+        ],
+        "description": ""
+      },
+      {
+        "type": "private",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>Returns all registered listeners for<br />a given <code>topic</code>.<br />If called without <code>topic</code> will return all<br />callbacks.</p>\n\n<p>Used internally.</p>",
+      "summary": "<p>Returns all registered listeners for<br />a given <code>topic</code>.<br />If called without <code>topic</code> will return all<br />callbacks.</p>",
+      "body": "<p>Used internally.</p>"
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.callbacks = function(topic){\n        this._callbacks = this._callbacks || {};\n        if(!topic) return this._callbacks;\n        return this._callbacks[topic] || (this._callbacks[topic] = []);\n    };",
+    "ctx": {
+      "type": "method",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "callbacks",
+      "string": "Gpub.prototype.callbacks()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "example",
+        "string": ""
+      },
+      {
+        "type": "",
+        "string": ""
+      },
+      {
+        "type": "",
+        "string": "var Model = function(){};"
+      },
+      {
+        "type": "",
+        "string": "Gpub.observable(Model);"
+      },
+      {
+        "type": "",
+        "string": "var user = new Model();"
+      },
+      {
+        "type": "",
+        "string": "user.on('something', function(){console.log('Hola!')});"
+      },
+      {
+        "type": "",
+        "string": "user.emit('something');"
+      },
+      {
+        "type": "",
+        "string": ""
+      },
+      {
+        "type": "",
+        "string": ""
+      },
+      {
+        "type": "param",
+        "types": [
+          "Object",
+          "Function"
+        ],
+        "name": "target",
+        "description": ""
+      },
+      {
+        "type": "return",
+        "types": [
+          "Object",
+          "Function"
+        ],
+        "description": "Returns the given object."
+      }
+    ],
+    "description": {
+      "full": "<p>Observable mixin. It will add <code>Gpub</code> methods<br />to the given <code>target</code>.<br />If we provide a <code>constructor</code> it will extend<br />it's prototype.</p>",
+      "summary": "<p>Observable mixin. It will add <code>Gpub</code> methods<br />to the given <code>target</code>.<br />If we provide a <code>constructor</code> it will extend<br />it's prototype.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.observable = function(target){\n        return _mixin(target || {}, Gpub.prototype);\n    };",
+    "ctx": {
+      "type": "method",
+      "receiver": "Gpub",
+      "name": "observable",
+      "string": "Gpub.observable()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Object"
+        ],
+        "name": "src",
+        "description": "Object to extend"
+      },
+      {
+        "type": "",
+        "string": "with methods."
+      },
+      {
+        "type": "param",
+        "types": [
+          "Array",
+          "String"
+        ],
+        "name": "events",
+        "description": "Events for which we want to"
+      },
+      {
+        "type": "",
+        "string": "generate delegate methods."
+      },
+      {
+        "type": "param",
+        "types": [
+          "Function"
+        ],
+        "name": "eventBuilder",
+        "description": "Function to generate the delegate"
+      },
+      {
+        "type": "",
+        "string": "method name."
+      },
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "glue",
+        "description": "If we pass in a string, this"
+      },
+      {
+        "type": "",
+        "string": "will be used to split into different"
+      },
+      {
+        "type": "",
+        "string": "event types."
+      },
+      {
+        "type": "return",
+        "types": [
+          "Object"
+        ],
+        "description": "Returns passed in object."
+      }
+    ],
+    "description": {
+      "full": "<p>It will create methods in <code>src</code> to register<br />handlers for all passed events.</p>\n\n<p>If we pass:</p>\n\n<pre><code>var Model = function(){};\nvar events = [\"change\", \"sync\"];\nGpub.delegable(Model.prototype, events);\nvar user = new Model();\nuser.onsync(function(e){console.log(\"syncd\", e)});\nuser.onchange(function(e){console.log(\"changed\", e)});\nuser.emit(\"change\").emit(\"sync\");\n</code></pre>\n\n<p>By default, methods generated will be in the form<br />of <strong>on</strong>+<strong>event</strong>.<br />We can pass in a custom method name generator.</p>\n\n<p>If the passed in <code>src</code> object is not an instance<br />of <code>Gpub</code> it will be augmented with the mixin.</p>",
+      "summary": "<p>It will create methods in <code>src</code> to register<br />handlers for all passed events.</p>",
+      "body": "<p>If we pass:</p>\n\n<pre><code>var Model = function(){};\nvar events = [\"change\", \"sync\"];\nGpub.delegable(Model.prototype, events);\nvar user = new Model();\nuser.onsync(function(e){console.log(\"syncd\", e)});\nuser.onchange(function(e){console.log(\"changed\", e)});\nuser.emit(\"change\").emit(\"sync\");\n</code></pre>\n\n<p>By default, methods generated will be in the form<br />of <strong>on</strong>+<strong>event</strong>.<br />We can pass in a custom method name generator.</p>\n\n<p>If the passed in <code>src</code> object is not an instance<br />of <code>Gpub</code> it will be augmented with the mixin.</p>"
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.delegable = function(src, events, eventBuilder, glue){\n        //TODO: DRY, make check all methods!!\n        if(!('on' in src) || !('emit' in src)) this.observable(src);\n\n        eventBuilder || (eventBuilder = function(e){ return 'on'+e;});\n            \n        if(typeof events === 'string') events = events.split(glue || ' ');\n\n        var method, bind = typeof src === 'function';\n        events.forEach(function(event){\n            method = function(handler){\n                if(!handler) return this;\n                this.on(event, handler);\n                return this;\n            };\n            if(bind) method.bind(src);\n            src[eventBuilder(event)] = method;\n        });\n\n        return src;\n    };",
+    "ctx": {
+      "type": "method",
+      "receiver": "Gpub",
+      "name": "delegable",
+      "string": "Gpub.delegable()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Object"
+        ],
+        "name": "src",
+        "description": "Object to be augmented."
+      },
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "set",
+        "description": "Name of `set` method in `src`"
+      },
+      {
+        "type": "param",
+        "types": [
+          "String"
+        ],
+        "name": "get",
+        "description": "Name of `get` method in `src`"
+      },
+      {
+        "type": "param",
+        "types": [
+          "Boolean"
+        ],
+        "name": "bind",
+        "description": "Should we bind the generated method?"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Object"
+        ],
+        "description": "Returns the passed in object."
+      }
+    ],
+    "description": {
+      "full": "<p>It will monkey patch the given <code>src</code> setter<br />method so that it triggers a <code>change</code> and <code>change:&lt;key&gt;</code> <br />event on update. The event object carries the old value<br />and the current value, plus the updated property name.</p>\n\n<p>It's a quick way to generate a bindable model.</p>\n\n<pre><code>var Model = function(){this.data={}};\nModel.prototype.set = function(key, value) {\n    this.data[key] = value;\n    return this;\n};\nModel.prototype.get = function(key, def){\n    return this.data[key] || def;\n};\nGpub.bindable(Model.prototype, 'set', 'get');\n</code></pre>\n\n<p>If we don't specify a <code>set</code> or <code>get</code> value, then<br /><code>set</code> and <code>get</code> will be used by default.</p>",
+      "summary": "<p>It will monkey patch the given <code>src</code> setter<br />method so that it triggers a <code>change</code> and <code>change:&lt;key&gt;</code> <br />event on update. The event object carries the old value<br />and the current value, plus the updated property name.</p>",
+      "body": "<p>It's a quick way to generate a bindable model.</p>\n\n<pre><code>var Model = function(){this.data={}};\nModel.prototype.set = function(key, value) {\n    this.data[key] = value;\n    return this;\n};\nModel.prototype.get = function(key, def){\n    return this.data[key] || def;\n};\nGpub.bindable(Model.prototype, 'set', 'get');\n</code></pre>\n\n<p>If we don't specify a <code>set</code> or <code>get</code> value, then<br /><code>set</code> and <code>get</code> will be used by default.</p>"
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.bindable = function(src, set, get, bind){\n        // var bind = (typeof src === 'function');\n        // src = bind ? src.prototype : src;\n        //TODO: DRY, make check all methods!!\n        if(!('on' in src) || !('emit' in src)) this.observable(src);\n\n        var _set = src[set || 'set'], _get = src[get || 'get'];\n\n        var method = function(key, value){\n            var old = _get.call(this, key),\n                out = _set.call(this, key, value),\n                //TODO: _buildEvent({old:old, value:value, target:this});\n                evt = {old:old, value:value, property:key};\n\n            if (this.emits('change')) this.emit('change', evt);\n            if (this.emits('change:' + key)) this.emit('change:'+key, evt);\n            return out;\n        };\n\n        if(bind) method.bind(src);\n\n        src[set] = method;\n\n        return src;\n    };",
+    "ctx": {
+      "type": "method",
+      "receiver": "Gpub",
+      "name": "bindable",
+      "string": "Gpub.bindable()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>This is so that we can keep backwards compatibility<br />with old API. It will be removed soon!</p>",
+      "summary": "<p>This is so that we can keep backwards compatibility<br />with old API. It will be removed soon!</p>",
+      "body": ""
+    },
+    "ignore": true
+  },
+  {
+    "tags": [
+      {
+        "type": "deprecated",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>@method</p>",
+      "summary": "<p>@method</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.publish = Gpub.prototype.emit;",
+    "ctx": {
+      "type": "property",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "publish",
+      "value": "Gpub.prototype.emit",
+      "string": "Gpub.prototype.publish"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "deprecated",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>@function</p>",
+      "summary": "<p>@function</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.subscribe = Gpub.prototype.on;",
+    "ctx": {
+      "type": "property",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "subscribe",
+      "value": "Gpub.prototype.on",
+      "string": "Gpub.prototype.subscribe"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "deprecated",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>@function</p>",
+      "summary": "<p>@function</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.unsubscribe = Gpub.prototype.off;",
+    "ctx": {
+      "type": "property",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "unsubscribe",
+      "value": "Gpub.prototype.off",
+      "string": "Gpub.prototype.unsubscribe"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "deprecated",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>@function</p>",
+      "summary": "<p>@function</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Gpub.prototype.subscribers = Gpub.prototype.emits;\n    \n\n    return Gpub;\n});",
+    "ctx": {
+      "type": "property",
+      "constructor": "Gpub",
+      "cons": "Gpub",
+      "name": "subscribers",
+      "value": "Gpub.prototype.emits",
+      "string": "Gpub.prototype.subscribers"
+    }
+  }
+]

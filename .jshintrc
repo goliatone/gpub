@@ -28,6 +28,7 @@
   "globals": {
     "angular": false,
     "jquery":true,
-    "requirejs":true
+    "requirejs":true,
+    "define":true
   }
 }
