@@ -1,18 +1,30 @@
 /**
- * @author goliatone
+ * # Gpub: Simple pub/sub
+ * Gpub is an Event Dispatcher library. Or pub/sub. But
+ * with class, suckers.
+ *
+ * [Gitter](https://gitter.im/goliatone/gpub#) here you can ask questions when you need help.
+ * 
+ * @author goliatone <hello@goliatone.com>
  * @url https://github.com/goliatone/gpub
  * @copyright (c) 2013 goliatone
  * @license MIT
- * @title Gpub: Simple pub/sub
- * @overview Gpub is an Event Dispatcher library. Or pub/sub.
+ * @version 0.3.0
+ * @description Gpub is an Event Dispatcher library. Or pub/sub.
  * @module Gpub
  */
-/*global define:true*/
-/* jshint strict: false */
 define('gpub', function($) {
-////////////////////////////////////////////////////////
-/// PRIVATE METHODS
-////////////////////////////////////////////////////////
+
+    /**
+     * Publish method.
+     * @param   {Array} list     List of event objects
+     * @param   {Array} args    Arguments for callback
+     * @param   {Object} options Options object
+     * @return  {Boolean|undefined}         If callback returns false
+     *                                      it breaks the loop.
+     * @function
+     * @private
+     */
     var _publish = function(list, args, options){
         var event, i, l;
         //Invoke callbacks. We need length on each iter
@@ -34,6 +46,14 @@ define('gpub', function($) {
         }
     };
 
+    /**
+     * Mixin util.
+     * @param   {Object|Function} target Object to be extended
+     * @param   {Object|Function} source Object that lends props.
+     * @return  {Object|Function}        Rerutn target object.
+     * @function
+     * @private
+     */
     var _mixin = function(target, source){
         
         if(typeof target === 'function') target = target.prototype;
@@ -45,9 +65,6 @@ define('gpub', function($) {
     };
 
     var _slice = [].slice;
-////////////////////////////////////////////////////////
-/// CONSTRUCTOR
-////////////////////////////////////////////////////////
 
    /**
     * Gpub is a simple pub sub library.
@@ -56,14 +73,9 @@ define('gpub', function($) {
     */
     var Gpub = function(){};
 
-
-
-////////////////////////////////////////////////////////
-/// PUBLIC METHODS
-////////////////////////////////////////////////////////    
-
    /**
     * Register an event listener.
+    * 
     * @param  {String}   topic    String indicating the event type
     * @param  {Function} callback Callback to handle event topics.
     * @param  {Object}   scope    We can dynamically change the scope of 
@@ -95,6 +107,7 @@ define('gpub', function($) {
      * Checks to see if the provided topic has
      * registered listeners and thus triggering
      * and event.
+     * 
      * @param  {String} topic Event type.
      * @return {this}
      */
@@ -143,8 +156,10 @@ define('gpub', function($) {
     /**
      * Unregisters the given `callback` from `topic`
      * events.
+     * 
      * If called without arguments, it will remove all 
      * listeners.
+     * 
      * TODO: If we pass `topic` but no `callback` should we
      * remove all listeners of `topic`?
      * 
@@ -188,24 +203,20 @@ define('gpub', function($) {
         return this._callbacks[topic] || (this._callbacks[topic] = []);
     };
 
-    
-
-////////////////////////////////////////////////////////
-/// STATIC METHODS
-//////////////////////////////////////////////////////// 
     /**
      * Observable mixin. It will add `Gpub` methods
      * to the given `target`.
      * If we provide a `constructor` it will extend
      * it's prototype.
      * 
-     * ```javascript
+     * @example
+     * 
      *     var Model = function(){};
      *     Gpub.observable(Model);
      *     var user = new Model();
      *     user.on('something', function(){console.log('Hola!')});
      *     user.emit('something');
-     * ```
+     *
      * 
      * @param  {Object|Function} target
      * @return {Object|Function} Returns the given object.
@@ -219,20 +230,23 @@ define('gpub', function($) {
      * handlers for all passed events.
      * 
      * If we pass:
+     * 
      *     var Model = function(){};
-     *     var events = ['change', 'sync'];
+     *     var events = ["change", "sync"];
      *     Gpub.delegable(Model.prototype, events);
      *     var user = new Model();
-     *     user.onsync(function(e){console.log('sync\'d', e)});
-     *     user.onchange(function(e){console.log('changed', e)});
-     *     user.emit('change').emit('sync');
+     *     user.onsync(function(e){console.log("syncd", e)});
+     *     user.onchange(function(e){console.log("changed", e)});
+     *     user.emit("change").emit("sync");
      *
+     * 
      * By default, methods generated will be in the form
      * of **on**+**event**.
      * We can pass in a custom method name generator.
      *
      * If the passed in `src` object is not an instance
      * of `Gpub` it will be augmented with the mixin.
+     *
      * 
      * @param  {Object} src          Object to extend
      *                               with methods.
@@ -275,7 +289,6 @@ define('gpub', function($) {
      *
      * It's a quick way to generate a bindable model.
      *
-     * ```javascript
      *     var Model = function(){this.data={}};
      *     Model.prototype.set = function(key, value) {
      *         this.data[key] = value;
@@ -285,7 +298,8 @@ define('gpub', function($) {
      *         return this.data[key] || def;
      *     };
      *     Gpub.bindable(Model.prototype, 'set', 'get');
-     * ```    
+     *
+     * 
      * If we don't specify a `set` or `get` value, then
      * `set` and `get` will be used by default.
      * 
@@ -321,23 +335,36 @@ define('gpub', function($) {
         return src;
     };
 
-////////////////////////////////////////////////////////
-/// LEGACY METHODS: This will be removed soon.
-////////////////////////////////////////////////////////
-    /*
+    /*!
      * This is so that we can keep backwards compatibility
      * with old API. It will be removed soon!
      */
-    /**@deprecated*/
-    Gpub.prototype.publish     = Gpub.prototype.emit;
-    /**@deprecated*/
-    Gpub.prototype.subscribe   = Gpub.prototype.on;
-    /**@deprecated*/
+    
+    /**
+     * @method
+     * @deprecated
+     */
+    Gpub.prototype.publish = Gpub.prototype.emit;
+
+    /**
+     * @function
+     * @deprecated
+     */
+    Gpub.prototype.subscribe = Gpub.prototype.on;
+
+
+    /**
+     * @function
+     * @deprecated
+     */
     Gpub.prototype.unsubscribe = Gpub.prototype.off;
-    /**@deprecated*/
+
+    /**
+     * @function
+     * @deprecated
+     */
     Gpub.prototype.subscribers = Gpub.prototype.emits;
     
-
 
     return Gpub;
 });
