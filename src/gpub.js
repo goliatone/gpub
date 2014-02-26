@@ -188,7 +188,17 @@ define('gpub', function($) {
         return this._callbacks[topic] || (this._callbacks[topic] = []);
     };
 
-    
+    Gpub.prototype.once = function(topic, callback, scope, options){
+        
+        var handler = (function handler(){
+            callback.apply(this, arguments);
+            this.off(topic, handler);
+        }).bind(this);
+
+        this.on(topic, handler, scope, options);
+
+        return this;
+    };
 
 ////////////////////////////////////////////////////////
 /// STATIC METHODS
