@@ -213,5 +213,41 @@ define(['gpub'], function(Gpub) {
             expect(callbackArguments[0]).toBe('topic');
             expect(callbackArguments[1]).toHaveProperties('event','options');
         });
+
+        it('topics for handlers registered with the once method should only be triggered once', function(){
+            var single = sinon.spy(),
+                multiple = sinon.spy();
+
+            item.on('update', multiple).once('update', single);
+
+            item.emit('update').emit('update').emit('update');
+
+            expect(single).toHaveBeenCalledOnce();
+            expect(multiple).toHaveBeenCalledThrice();
+        });
+
+        it('once handlers should retain the dispatchers scope', function(){
+            var single = sinon.spy(),
+                multiple = sinon.spy();
+
+            item.on('update', multiple).once('update', single);
+
+            item.emit('update').emit('update').emit('update');
+
+            expect(single.calledOn(item)).toBeTruthy();
+        });
+
+        it('once handlers should retain the dispatchers scope provided as an argument', function(){
+            var single = sinon.spy(),
+                multiple = sinon.spy(),
+                Model = function(){},
+                source = new Model();
+
+            item.on('update', multiple).once('update', single, source);
+
+            item.emit('update').emit('update').emit('update');
+
+            expect(single.calledOn(source)).toBeTruthy();
+        });
     });
 });

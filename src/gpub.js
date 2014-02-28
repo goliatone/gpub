@@ -188,7 +188,23 @@ define('gpub', function($) {
         return this._callbacks[topic] || (this._callbacks[topic] = []);
     };
 
-    
+    Gpub.prototype.once = function(topic, callback, scope, options){
+        
+        if(!callback || !topic) return this;
+        scope || (scope = this);
+        
+        //I dislike using "self" outside python. But so far it seems
+        //the only way to deal with this scope shenanigan
+        var self = this;
+        var handler = (function (){
+            callback.apply(scope, arguments);
+            self.off(topic, handler);
+        });
+
+        this.on(topic, handler, scope, options);
+
+        return this;
+    };
 
 ////////////////////////////////////////////////////////
 /// STATIC METHODS
