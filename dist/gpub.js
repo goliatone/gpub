@@ -44,6 +44,21 @@ define('gpub', function($) {
         return target;
     };
 
+    var _debounce = function(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    };
+
     var _slice = [].slice;
 ////////////////////////////////////////////////////////
 /// CONSTRUCTOR
@@ -190,14 +205,24 @@ define('gpub', function($) {
 
     Gpub.prototype.once = function(topic, callback, scope, options){
         
-        var handler = (function handler(){
-            callback.apply(this, arguments);
-            this.off(topic, handler);
-        }).bind(this);
+        if(!callback || !topic) return this;
+        scope || (scope = this);
+        
+        //I dislike using "self" outside python. But so far it seems
+        //the only way to deal with this scope shenanigan
+        var self = this;
+        var handler = (function (){
+            callback.apply(scope, arguments);
+            self.off(topic, handler);
+        });
 
         this.on(topic, handler, scope, options);
 
         return this;
+    };
+
+    Gpub.prototype.throttle = function(topic, callback, wait, scope, options){
+        _debounce(this.emit, wait);
     };
 
 ////////////////////////////////////////////////////////
@@ -318,6 +343,8 @@ define('gpub', function($) {
                 out = _set.call(this, key, value),
                 //TODO: _buildEvent({old:old, value:value, target:this});
                 evt = {old:old, value:value, property:key};
+            
+            if(old === value) return out;
 
             if (this.emits('change')) this.emit('change', evt);
             if (this.emits('change:' + key)) this.emit('change:'+key, evt);
