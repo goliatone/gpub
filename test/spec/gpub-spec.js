@@ -42,14 +42,14 @@ define(['gpub'], function(Gpub) {
             expect(item.subscribers('topic')).toBeFalsy();
         });
 
-        it('objects get notified of publisehd topics',function(){
+        it('objects get notified of published topics',function(){
             var spy = sinon.spy();
             item.subscribe('topic',spy);
             item.publish('topic');
             expect(spy).toHaveBeenCalled();
         });
 
-        it('objects get notified of publisehd topics',function(){
+        it('objects get notified of published topics',function(){
             var spy = sinon.spy();
             var options = {options:true};
             item.subscribe('topic',spy);
@@ -124,7 +124,7 @@ define(['gpub'], function(Gpub) {
             expect(spy.returned(item)).toBeTruthy();
         });
 
-        it('shoud include all event props into the options parameter',function(){
+        it('should include all event props into the options parameter',function(){
 
             //SHOULD WE MAKE THIS A FEATURE OR A BUG?!
             //for now, we leave it as it is.
@@ -248,6 +248,18 @@ define(['gpub'], function(Gpub) {
             item.emit('update').emit('update').emit('update');
 
             expect(single.calledOn(source)).toBeTruthy();
+        });
+
+        it('should debounce multiple events triggered in rapid succession', function(){
+            var single = sinon.spy(),
+                multiple = sinon.spy();
+
+            item.on('update', multiple).debounce('update', single);
+
+            item.emit('update').emit('update').emit('update');
+
+            expect(single).toHaveBeenCalledOnce();
+            expect(multiple).toHaveBeenCalledThrice();
         });
     });
 });

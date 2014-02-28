@@ -9,7 +9,7 @@
  */
 /*global define:true*/
 /* jshint strict: false */
-define('gpub', function($) {
+define('gpub', function() {
 ////////////////////////////////////////////////////////
 /// PRIVATE METHODS
 ////////////////////////////////////////////////////////
@@ -42,6 +42,21 @@ define('gpub', function($) {
             target[method] = source[method];
         });
         return target;
+    };
+
+    var _debounce = function(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
     };
 
     var _slice = [].slice;
@@ -203,6 +218,30 @@ define('gpub', function($) {
 
         this.on(topic, handler, scope, options);
 
+        return this;
+    };
+
+    /**
+     * Use it to discard a number of fast paced
+     * events, eg if you want to listen to a 
+     * model's update event and trigger a render
+     * method.
+     * 
+     * TODO: Update `Gpub.observable` change with debounce.
+     * 
+     * @param  {String}   topic    Event type.
+     * @param  {Function} callback Listener we want to remove.
+     * @param  {int}      wait     Miliseconds to wait.
+     * @param  {Object}   scope    We can dynamically change the scope of 
+     *                             the handler.
+     * @param  {Object}   options  Options object that will be sent with the
+     *                             event to all handler callbacks.
+     * @return {this}
+     */
+    Gpub.prototype.debounce = function(topic, callback, wait, scope, options){
+        if(wait === undefined) wait = 1;
+        var handler = _debounce(callback, wait, true);
+        this.on(topic, handler, scope, options);
         return this;
     };
 
