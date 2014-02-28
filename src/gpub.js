@@ -227,6 +227,7 @@ define('gpub', function() {
      * model's update event and trigger a render
      * method.
      * 
+     * TODO: Update `Gpub.observable` change with debounce.
      * 
      * @param  {String}   topic    Event type.
      * @param  {Function} callback Listener we want to remove.
@@ -238,6 +239,7 @@ define('gpub', function() {
      * @return {this}
      */
     Gpub.prototype.debounce = function(topic, callback, wait, scope, options){
+        if(wait === undefined) wait = 1;
         var handler = _debounce(callback, wait, true);
         this.on(topic, handler, scope, options);
         return this;
