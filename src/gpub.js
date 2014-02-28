@@ -324,6 +324,8 @@ define('gpub', function($) {
                 out = _set.call(this, key, value),
                 //TODO: _buildEvent({old:old, value:value, target:this});
                 evt = {old:old, value:value, property:key};
+            
+            if(old === value) return out;
 
             if (this.emits('change')) this.emit('change', evt);
             if (this.emits('change:' + key)) this.emit('change:'+key, evt);
