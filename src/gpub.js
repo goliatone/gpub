@@ -13,29 +13,32 @@ define('gpub', function() {
 ////////////////////////////////////////////////////////
 /// PRIVATE METHODS
 ////////////////////////////////////////////////////////
-    var _publish = function(list, args, options){
-        var event, i, l;
-        //Invoke callbacks. We need length on each iter
-        //cose it could change, off.
-        // args = _slice.call(arguments, 1);
-        //var o;
-        for(i = 0, l = list.length; i < l; i++){
-            event = list[i];
-            if(!event) continue;
+    var _publish = function(list, args, o){
+        var e, i = -1, l = list.length,
+            a1 = args[0], a2 = args[1], a3 = args[2],
+            _a = function(e){o.event = e; o.target = e.target;};
 
-            //We want to have a dif. options object
-            //for each callback;
-            options.event  = event;
-            options.target = event.target;//shortcut to access target.
-            // o = $.extend({},options);
-
-            if(event.callback.apply(event.scope, args) === false) break;
-            // if(!event.callback.apply(event.scope, a)) break;
+        switch(args.length){
+            case 0: while(++i < l){
+                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope) === false) break;
+            } return;
+            case 1: while(++i < l){
+                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope, a1) === false) break;
+            } return;
+            case 2: while(++i < l){
+                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope, a1, a2) === false) break;
+            } return;
+            case 3: while(++i < l){
+                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope, a1, a2, a3) === false) break;
+            } return;
+            default: case 2: while(++i < l){
+                e = list[i]; if(!e) continue; _a(e); if(e.callback.apply(e.scope, args) === false) break;
+            } return;
         }
     };
 
     var _mixin = function(target, source){
-        
+
         if(typeof target === 'function') target = target.prototype;
         //TODO: Should we do Gpub.methods = ['on', 'off', 'emit', 'emits'];?
         Object.keys(source).forEach(function(method){
@@ -75,13 +78,13 @@ define('gpub', function() {
 
 ////////////////////////////////////////////////////////
 /// PUBLIC METHODS
-////////////////////////////////////////////////////////    
+////////////////////////////////////////////////////////
 
    /**
     * Register an event listener.
     * @param  {String}   topic    String indicating the event type
     * @param  {Function} callback Callback to handle event topics.
-    * @param  {Object}   scope    We can dynamically change the scope of 
+    * @param  {Object}   scope    We can dynamically change the scope of
     *                             the handler.
     * @param  {Object}   options  Options object that will be sent with the
     *                             event to all handler callbacks.
@@ -122,10 +125,10 @@ define('gpub', function() {
      * Triggers an event so all registered listeners
      * for the `topic` will be notified.
      * Optionally, we can send along an options object.
-     * 
+     *
      * @param  {String} topic   Event type.
      * @param  {Object} options Options object, sent along
-     *                          in the event to all listeners 
+     *                          in the event to all listeners
      *                          registered with `topic`.
      * @return {this}
      */
@@ -148,9 +151,9 @@ define('gpub', function() {
         //if global handlers, append to list.
         //if((all = calls['all'])) list = (list || []).concat(all);
 
-        if((all = calls['all'])) _publish.call(this, all, _slice.call(arguments, 0), options);
+        if((all = calls['all'])) _publish(all, _slice.call(arguments, 0), options);
         // if((all = calls['all'])) _publish.call(this, all, [topic].concat(args));
-        if(list) _publish.call(this,list, args, options);
+        if(list) _publish(list, args, options);
 
         return this;
     };
@@ -158,11 +161,11 @@ define('gpub', function() {
     /**
      * Unregisters the given `callback` from `topic`
      * events.
-     * If called without arguments, it will remove all 
+     * If called without arguments, it will remove all
      * listeners.
      * TODO: If we pass `topic` but no `callback` should we
      * remove all listeners of `topic`?
-     * 
+     *
      * @param  {String}   topic    Event type.
      * @param  {Function} callback Listener we want to remove.
      * @return {this}
@@ -190,9 +193,9 @@ define('gpub', function() {
      * a given `topic`.
      * If called without `topic` will return all
      * callbacks.
-     * 
+     *
      * Used internally.
-     * 
+     *
      * @param  {String} topic Event type.
      * @return {Object|Array}
      * @private
@@ -204,10 +207,10 @@ define('gpub', function() {
     };
 
     Gpub.prototype.once = function(topic, callback, scope, options){
-        
+
         if(!callback || !topic) return this;
         scope || (scope = this);
-        
+
         //I dislike using "self" outside python. But so far it seems
         //the only way to deal with this scope shenanigan
         var self = this;
@@ -223,16 +226,16 @@ define('gpub', function() {
 
     /**
      * Use it to discard a number of fast paced
-     * events, eg if you want to listen to a 
+     * events, eg if you want to listen to a
      * model's update event and trigger a render
      * method.
-     * 
+     *
      * TODO: Update `Gpub.observable` change with debounce.
-     * 
+     *
      * @param  {String}   topic    Event type.
      * @param  {Function} callback Listener we want to remove.
      * @param  {int}      wait     Miliseconds to wait.
-     * @param  {Object}   scope    We can dynamically change the scope of 
+     * @param  {Object}   scope    We can dynamically change the scope of
      *                             the handler.
      * @param  {Object}   options  Options object that will be sent with the
      *                             event to all handler callbacks.
@@ -247,13 +250,13 @@ define('gpub', function() {
 
 ////////////////////////////////////////////////////////
 /// STATIC METHODS
-//////////////////////////////////////////////////////// 
+////////////////////////////////////////////////////////
     /**
      * Observable mixin. It will add `Gpub` methods
      * to the given `target`.
      * If we provide a `constructor` it will extend
      * it's prototype.
-     * 
+     *
      * ```javascript
      *     var Model = function(){};
      *     Gpub.observable(Model);
@@ -261,7 +264,7 @@ define('gpub', function() {
      *     user.on('something', function(){console.log('Hola!')});
      *     user.emit('something');
      * ```
-     * 
+     *
      * @param  {Object|Function} target
      * @return {Object|Function} Returns the given object.
      */
@@ -272,7 +275,7 @@ define('gpub', function() {
     /**
      * It will create methods in `src` to register
      * handlers for all passed events.
-     * 
+     *
      * If we pass:
      *     var Model = function(){};
      *     var events = ['change', 'sync'];
@@ -288,7 +291,7 @@ define('gpub', function() {
      *
      * If the passed in `src` object is not an instance
      * of `Gpub` it will be augmented with the mixin.
-     * 
+     *
      * @param  {Object} src          Object to extend
      *                               with methods.
      * @param  {Array|String} events       Events for which we want to
@@ -305,7 +308,7 @@ define('gpub', function() {
         if(!('on' in src) || !('emit' in src)) this.observable(src);
 
         eventBuilder || (eventBuilder = function(e){ return 'on'+e;});
-            
+
         if(typeof events === 'string') events = events.split(glue || ' ');
 
         var method, bind = typeof src === 'function';
@@ -324,7 +327,7 @@ define('gpub', function() {
 
     /**
      * It will monkey patch the given `src` setter
-     * method so that it triggers a `change` and `change:<key>` 
+     * method so that it triggers a `change` and `change:<key>`
      * event on update. The event object carries the old value
      * and the current value, plus the updated property name.
      *
@@ -340,10 +343,10 @@ define('gpub', function() {
      *         return this.data[key] || def;
      *     };
      *     Gpub.bindable(Model.prototype, 'set', 'get');
-     * ```    
+     * ```
      * If we don't specify a `set` or `get` value, then
      * `set` and `get` will be used by default.
-     * 
+     *
      * @param  {Object} src  Object to be augmented.
      * @param  {String} set  Name of `set` method in `src`
      * @param  {String} get  Name of `get` method in `src`
@@ -363,7 +366,7 @@ define('gpub', function() {
                 out = _set.call(this, key, value),
                 //TODO: _buildEvent({old:old, value:value, target:this});
                 evt = {old:old, value:value, property:key};
-            
+
             if(old === value) return out;
 
             if (this.emits('change')) this.emit('change', evt);
@@ -393,7 +396,7 @@ define('gpub', function() {
     Gpub.prototype.unsubscribe = Gpub.prototype.off;
     /**@deprecated*/
     Gpub.prototype.subscribers = Gpub.prototype.emits;
-    
+
 
 
     return Gpub;
