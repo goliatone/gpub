@@ -26,6 +26,7 @@
     "matchdep": "~0.1.1",
     "grunt-google-cdn": "~0.1.1",
     "markdown": "~0.4.0",
+    "phantomjs": "~1.9.2-6",
     "jsdox": "~0.2.4"
   }
 }
