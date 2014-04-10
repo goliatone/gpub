@@ -1,6 +1,6 @@
 {
   "name": "gpub",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "dependencies": {
     "jquery": "~1.9.1",
     "requirejs": "~2.1.4"
