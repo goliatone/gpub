@@ -182,11 +182,11 @@ It's a quick way to generate a bindable model.
 ```javascript
 var Model = function(){this.data={}};
 Model.prototype.set = function(key, value) {
-this.data[key] = value;
-return this;
+    this.data[key] = value;
+    return this;
 };
 Model.prototype.get = function(key, def){
-return this.data[key] || def;
+    return this.data[key] || def;
 };
 Gpub.bindable(Model.prototype, 'set', 'get');
 ```
