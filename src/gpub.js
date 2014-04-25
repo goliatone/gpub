@@ -31,7 +31,7 @@ define('gpub', function() {
             case 3: while(++i < l){
                 e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope, a1, a2, a3) === false) break;
             } return;
-            default: case 2: while(++i < l){
+            default: while(++i < l){
                 e = list[i]; if(!e) continue; _a(e); if(e.callback.apply(e.scope, args) === false) break;
             } return;
         }
@@ -182,7 +182,8 @@ define('gpub', function() {
         if(!(list  = calls[topic])) return this;
 
         for(i = 0, l = list.length; i < l; i++){
-            if(list[i].callback === callback) list.splice(i,1);
+            //Remove empty refs, and our callback event listener.
+            if(!list[i] || list[i].callback === callback) list.splice(i, 1);
         }
 
         return this;
