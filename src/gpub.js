@@ -16,7 +16,8 @@ define('gpub', function() {
     var _publish = function(list, args, o){
         var e, i = -1, l = list.length,
             a1 = args[0], a2 = args[1], a3 = args[2],
-            _a = function(e){o.event = e; o.target = e.target;};
+            _u = function(){e.target.off(e.topic, e.callback)},
+            _a = function(e){o.event = e; o.target = e.target; o.unregister = _u};
 
         switch(args.length){
             case 0: while(++i < l){
