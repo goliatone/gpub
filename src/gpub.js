@@ -13,6 +13,9 @@ define('gpub', function() {
 ////////////////////////////////////////////////////////
 /// PRIVATE METHODS
 ////////////////////////////////////////////////////////
+    /*
+     * TODO: Review paramters, "o" seems to be included in args!
+     */
     var _publish = function(list, args, o){
         var e, i = -1, l = list.length,
             a1 = args[0], a2 = args[1], a3 = args[2],
@@ -240,14 +243,11 @@ define('gpub', function() {
     Gpub.prototype.once = function(topic, callback, scope, options){
 
         if(!callback || !topic) return this;
-        scope || (scope = this);
+        scope = scope || this;
 
-        //I dislike using "self" outside python. But so far it seems
-        //the only way to deal with this scope shenanigan
-        var self = this;
         var handler = (function (){
+            arguments[0].unregister();
             callback.apply(scope, arguments);
-            self.off(topic, handler);
         });
 
         this.on(topic, handler, scope, options);
