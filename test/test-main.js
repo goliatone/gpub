@@ -1,5 +1,5 @@
 var tests = Object.keys(window.__karma__.files).filter(function (file) {
-      return /-spec\.js$/.test(file);
+    return /-spec\.js$/.test(file);
 });
 
 requirejs.config({
@@ -13,3 +13,12 @@ requirejs.config({
     callback: window.__karma__.start
 });
 
+if(!Function.prototype.bind){
+    // PhantomJS doesn't support bind yet
+    Function.prototype.bind = Function.prototype.bind || function (thisp) {
+      var fn = this;
+      return function () {
+        return fn.apply(thisp, arguments);
+      };
+    };
+}
