@@ -130,6 +130,22 @@ define(['gpub'], function(Gpub) {
             expect(spy.calledOn(scope)).toBeTruthy();
         });
 
+        it('should execute in the scope provided',function(){
+            var scope = function(){};
+            var spy = sinon.spy();
+            item.on('topic', spy.bind(scope));
+            item.emit('topic');
+            expect(spy.calledOn(scope)).toBeTruthy();
+        });
+
+        it('should execute in the scope provided',function(){
+            var scope = function(){};
+            var spy = sinon.spy();
+            item.on('topic', spy.bind(spy), scope);
+            item.emit('topic');
+            expect(spy.calledOn(spy)).toBeTruthy();
+        });
+
         it('shoud include all event props into the options parameter',function(){
 
             //SHOULD WE MAKE THIS A FEATURE OR A BUG?!
