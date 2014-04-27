@@ -166,10 +166,10 @@ define('gpub', function() {
      * @return {this}
      */
     Gpub.prototype.emit = function(topic, event){
+        //TODO: Review WTF is going on with arguments here and _publish!!
         //Turn args obj into real array
         var args = _slice.call(arguments, 1);
 
-        //get the first arg, topic name
         event = event || {};
 
         //include the options into the arguments, making sure that we
@@ -177,15 +177,13 @@ define('gpub', function() {
         args.push(event);
 
         var list, calls, all;
-        //return if no callback
+
         if(!(calls = this.callbacks())) return this;
-        //get listeners, if none and no global handlers, return.
+
         if(!(list = calls[topic]) && !calls['all']) return this;
-        //if global handlers, append to list.
-        //if((all = calls['all'])) list = (list || []).concat(all);
 
         if((all = calls['all'])) _publish(all, _slice.call(arguments, 0), event);
-        // if((all = calls['all'])) _publish.call(this, all, [topic].concat(args));
+
         if(list) _publish(list, args, event);
 
         return this;
