@@ -33,7 +33,7 @@ define(['gpub'], function (Gpub) {
 					'changed from',
 					event.old,
 					'to', event.value,
-					'event topic', event.event.topic,
+					'event topic', event.topic,
 					'target is', event.target.get('name'));
 	});
 
@@ -82,11 +82,11 @@ define(['gpub'], function (Gpub) {
 
 	pepe.on('filter', function(e){
 		if(e.value === 'new'){
-			console.log('Filtering value', e.value);
+			console.log('Filtering value', e.value, e);
 			return false;
 		}
-		console.log('We do not filter');
-	});
+		console.warn('We should have filtered, if we see this, event changed');
+	}, pepe, {constant: 'this value is always here'});
 
 	pepe.on('filter', function(e){
 		console.error('WE SHOULD NOT REACH THIS HANDLER');
@@ -98,18 +98,16 @@ define(['gpub'], function (Gpub) {
  * We can add "once" handlers
 ************************************************/
 	pepe.once('once.event', function(e){
-		console.log('This event  handler should execute once');
+		console.log('This event  handler should execute once', e);
 	});
-
-	pepe.emit('once.event');
-	pepe.emit('once.event');
-	pepe.emit('once.event');
+	pepe.emit('once.event').emit('once.event').emit('once.event');
 
 /************************************************
  * We can debounce handlers
 ************************************************/
+	var count = 0, start = new Date();
 	pepe.debounce('debouncing', function(e){
-		console.log('on debouncing');
+		console.log('on debouncing', ++count, (new Date() - start));
 	}, 1000, pepe, {ops:23});
 
 	function interval(func, wait, times, now){
@@ -132,10 +130,10 @@ define(['gpub'], function (Gpub) {
 	    else setTimeout(interv, wait);
 	}
 
-	interval(function(){
-		console.log('Interval')
-		pepe.emit('debouncing');
-	}, 1000, 5);
+	// interval(function(){
+	// 	console.log('Interval');
+	// 	pepe.emit('debouncing');
+	// }, 20, 1200, true);
 
 	window.Gpub = Gpub;
 	window.User = User;
