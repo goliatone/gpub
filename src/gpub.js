@@ -17,7 +17,13 @@ define('gpub', function() {
         var e, i = -1, l = list.length,
             a1 = args[0], a2 = args[1], a3 = args[2],
             _u = function(){e.target.off(e.topic, e.callback)},
-            _a = function(e){o.event = e; o.target = e.target; o.unregister = _u};
+            _a = function(e){
+                // o.event = e;
+                o.topic = e.topic;
+                o.target = e.target;
+                o.unregister = _u;
+                e.options && _mixin(o, e.options);
+            };
 
         switch(args.length){
             case 0: while(++i < l){
@@ -62,6 +68,28 @@ define('gpub', function() {
             if (callNow) func.apply(context, args);
         };
     };
+    /*var _debounce = function (fn, threshold, scope) {
+        threshold = threshold ||  250;
+        var last,
+            deferTimer;
+        return function () {
+            var context = scope || this;
+
+            var now = + new Date(),
+            args = arguments;
+            if (last && now < last + threshold) {
+                // hold on to it
+                clearTimeout(deferTimer);
+                deferTimer = setTimeout(function () {
+                    last = now;
+                    fn.apply(context, args);
+                }, threshold);
+            } else {
+                last = now;
+                fn.apply(context, args);
+            }
+        };
+    };*/
 
     var _slice = [].slice;
 ////////////////////////////////////////////////////////
@@ -98,14 +126,15 @@ define('gpub', function() {
         //Create an array for the given topic key, unless we have it,
         //then append the callback to the array
         // topic.push(callback);
-        var event = {};
-        event.topic = topic;
-        event.callback = callback;
-        event.scope = scope || this;
-        event.target = this;
+        var listener = {};
+        listener.topic = topic;
+        listener.callback = callback;
+        listener.scope = scope || this;
+        listener.target = this;
+        listener.options = options;
         // event.options = options || {};//_merge((options || {}),{target:this});
 
-        topics.push(event);
+        topics.push(listener);
 
         return this;
     };
@@ -125,24 +154,24 @@ define('gpub', function() {
     /**
      * Triggers an event so all registered listeners
      * for the `topic` will be notified.
-     * Optionally, we can send along an options object.
+     * Optionally, we can send along an "event" object.
      *
      * @param  {String} topic   Event type.
-     * @param  {Object} options Options object, sent along
+     * @param  {Object} event   Options object, sent along
      *                          in the event to all listeners
      *                          registered with `topic`.
      * @return {this}
      */
-    Gpub.prototype.emit = function(topic, options){
+    Gpub.prototype.emit = function(topic, event){
         //Turn args obj into real array
         var args = _slice.call(arguments, 1);
 
         //get the first arg, topic name
-        options = options || {};
+        event = event || {};
 
         //include the options into the arguments, making sure that we
         //send it along if we just created it here.
-        args.push(options);
+        args.push(event);
 
         var list, calls, all;
         //return if no callback
@@ -152,9 +181,9 @@ define('gpub', function() {
         //if global handlers, append to list.
         //if((all = calls['all'])) list = (list || []).concat(all);
 
-        if((all = calls['all'])) _publish(all, _slice.call(arguments, 0), options);
+        if((all = calls['all'])) _publish(all, _slice.call(arguments, 0), event);
         // if((all = calls['all'])) _publish.call(this, all, [topic].concat(args));
-        if(list) _publish(list, args, options);
+        if(list) _publish(list, args, event);
 
         return this;
     };
