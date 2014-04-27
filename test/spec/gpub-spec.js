@@ -5,8 +5,8 @@
 /*global beforeEach:true */
 /*global sinon:true */
 /* jshint strict: false */
-define(['gpub'], function(Gpub) {
-
+define(function(require) {
+    var Gpub = require('gpub');
     describe('just checking', function() {
 
         it('Gpub should be loaded', function() {
@@ -35,8 +35,8 @@ define(['gpub'], function(Gpub) {
 
         it('objects can unsubscribe from a pubsub instance',function(){
             var subscriber = function subscriber(){};
-            item.subscribe('topic',subscriber);
-            item.subscribe('topic-two',subscriber);
+            item.subscribe('topic', subscriber);
+            item.subscribe('topic-two', subscriber);
             expect(item.subscribers('topic')).toBeTruthy();
             item.unsubscribe('topic',subscriber);
             expect(item.subscribers('topic')).toBeFalsy();
@@ -51,10 +51,10 @@ define(['gpub'], function(Gpub) {
 
         it('objects get notified of published topics',function(){
             var spy = sinon.spy();
-            var options = {options:true};
+            var event = {options:true};
             item.subscribe('topic',spy);
-            item.publish('topic',options);
-            expect(spy).toHaveBeenCalledWith(options);
+            item.publish('topic', event);
+            expect(spy).toHaveBeenCalledWith(event);
             expect(spy).not.toHaveBeenCalledWith({});
         });
 
@@ -67,9 +67,9 @@ define(['gpub'], function(Gpub) {
             var spyA = sinon.spy(test, 'handler');
 
             //here it works cose we have the same order.
-            item.subscribe('topic',spyA);
-            item.subscribe('topic',spyB);
-            item.subscribe('topic',spyC);
+            item.subscribe('topic', spyA);
+            item.subscribe('topic', spyB);
+            item.subscribe('topic', spyC);
 
             item.publish('topic');
             expect(spyA).toHaveBeenCalled();
@@ -81,21 +81,20 @@ define(['gpub'], function(Gpub) {
             var single   = sinon.spy();
             var multiple = sinon.spy();
 
-            var options = {options:true};
-            item.subscribe('all',multiple);
+            var event = {options:true};
+            item.subscribe('all', multiple);
             item.subscribe('topic',single);
 
-            item.publish('topic',options);
-            item.publish('topic2',options);
-            item.publish('topic3',options);
+            item.publish('topic', event);
+            item.publish('topic2', event);
+            item.publish('topic3', event);
 
             expect(single).toHaveBeenCalledOnce();
-            // expect(single).toHaveBeenCalledWith(options);
+            // expect(single).toHaveBeenCalledWith(event);
 
             var callbackArguments = multiple.args[0];
             expect(multiple).toHaveBeenCalledThrice();
             expect(callbackArguments[0]).toBe('topic');
-            expect(callbackArguments[1]).toHaveProperties('event','options');
         });
 
         it('should have a fluid interface',function(){
@@ -113,45 +112,41 @@ define(['gpub'], function(Gpub) {
             expect(multiple.args[0]).toIncludeObject(['t1',opt]);
         });
 
-        it('should execute in the context of the publisher',function(){
-            var test = {};
-            test.handler = function(){return this;};
-            var spy = sinon.spy(test,'handler');
-            item.subscribe('topic',test.handler);
-
+        it('should execute in the scope of the publisher by default',function(){
+            var spy = sinon.spy();
+            item.subscribe('topic', spy);
             item.publish('topic');
-
-            expect(spy.returned(item)).toBeTruthy();
+            expect(spy.calledOn(item)).toBeTruthy();
         });
 
-        it('should include all event props into the options parameter',function(){
+        it('should execute in the scope provided',function(){
+            var scope = function(){};
+            var spy = sinon.spy();
+            item.on('topic', spy, scope);
+            item.emit('topic');
+            expect(spy.calledOn(scope)).toBeTruthy();
+        });
 
+        it('should include all event props into the event parameter',function(){
             //SHOULD WE MAKE THIS A FEATURE OR A BUG?!
             //for now, we leave it as it is.
-            var handler = {};
-            handler.onTopic = function(options){
-                // console.log('*****************');
-                // console.log(arguments);
-                // console.log('*****************');
-
-                handler.id = this.id;
-                options.age++;
-                expect(options.age).toBe(2);
+            var handler = {},
+                expectedID = 'someID';
+            handler.onTopic = function(event){
+                handler.id = expectedID;
+                event.age++;
+                expect(event.age).toBe(2);
                 return this;
             };
-            handler.onTopicTwo = function(options){
-                options.age++;
-                expect(options.age).toBe(3);
-                // console.log('*****************');
-                // console.log(arguments);
-                // console.log('*****************');
+            handler.onTopicTwo = function(event){
+                event.age++;
+                expect(event.age).toBe(3);
             };
 
             var spy = sinon.spy(handler, 'onTopic');
 
-            item.id = 23;
             item.subscribe('topic', handler.onTopic);
-            item.subscribe('topic',handler.onTopicTwo);
+            item.subscribe('topic', handler.onTopicTwo);
 
             item.publish('topic', {age:1});
 
@@ -161,17 +156,60 @@ define(['gpub'], function(Gpub) {
             expect(spy.args[0]).toHaveLength(2);//we have age + event.
 
             expect(handler.id).toBeTruthy();
-            expect(handler.id).toEqual(item.id);
-            expect(spy.args[0][0]).toHaveProperties('target','event');
+            expect(handler.id).toEqual(expectedID);
         });
+
+        it('emits should let you know if a topic is registered', function(){
+            var spy = sinon.spy();
+            item.on('topic', spy);
+            expect(item.emits('topic')).toBeTruthy();
+            expect(item.emits('NOTHING')).toBeFalsy();
+        });
+
+        it('emits should let you know if a topic is registered once', function(){
+            var spy = sinon.spy();
+            item.once('topic', spy);
+            expect(item.emits('topic')).toBeTruthy();
+            expect(item.emits('NOTHING')).toBeFalsy();
+        });
+
+        it('emits should let you know if a topic is registered after once', function(){
+            var spy = sinon.spy();
+            item.once('topic', spy);
+            expect(item.emits('topic')).toBeTruthy();
+            item.emit('topic');
+            expect(item.emits('topic')).toBeFalsy();
+        });
+
+        it('emits should work with unregister', function(){
+            item.on('topic', function(e){
+                e.unregister();
+            });
+            expect(item.emits('topic')).toBeTruthy();
+            item.emit('topic');
+            expect(item.emits('topic')).toBeFalsy();
+        });
+
 //////////////////////////////////////////////////////
 /// NEW API
 //////////////////////////////////////////////////////
+        it('event paramter should include the options object passed during registration',function(){
+            var options = {foo:'baz'};
+            var event = {bar:'lorem'};
+            var spy = function(e){
+                expect(e).toHaveProperties('foo', 'bar');
+                expect(e.bar).toMatch(event.bar);
+                expect(e.foo).toMatch(options.foo);
+            };
+            item.on('topic', spy, spy, options);
+            item.emit('topic', event);
+        });
+
         it('should execute in the context of the publisher',function(){
             var test = {};
             test.handler = function(){return this;};
             var spy = sinon.spy(test,'handler');
-            item.on('topic',test.handler);
+            item.on('topic', test.handler);
 
             item.emit('topic');
 
@@ -181,37 +219,36 @@ define(['gpub'], function(Gpub) {
         it('should have a fluid interface',function(){
             var single   = sinon.spy();
             var multiple = sinon.spy();
-            var opt = {options:true};
+            var event = {options:true};
             item.on('all',multiple).on('t2',single);
 
-            item.emit('t1',opt).emit('t2',opt).emit('t3',opt);
+            item.emit('t1',event).emit('t2', event).emit('t3', event);
 
             expect(single).toHaveBeenCalledOnce();
-            expect(single).toHaveBeenCalledWith(opt);
+            expect(single).toHaveBeenCalledWith(event);
 
             expect(multiple).toHaveBeenCalledThrice();
-            expect(multiple.args[0]).toIncludeObject(['t1',opt]);
+            expect(multiple.args[0]).toIncludeObject(['t1', event]);
         });
 
         it('should route all notices to a single handler if subscribed to the * channel',function(){
             var single   = sinon.spy();
             var multiple = sinon.spy();
 
-            var options = {options:true};
+            var event = {options:true};
             item.on('all', multiple);
             item.on('topic', single);
 
-            item.emit('topic',  options);
-            item.emit('topic2', options);
-            item.emit('topic3', options);
+            item.emit('topic',  event);
+            item.emit('topic2', event);
+            item.emit('topic3', event);
 
             expect(single).toHaveBeenCalledOnce();
-            // expect(single).toHaveBeenCalledWith(options);
+            expect(single).toHaveBeenCalledWith(event);
 
             var callbackArguments = multiple.args[0];
             expect(multiple).toHaveBeenCalledThrice();
             expect(callbackArguments[0]).toBe('topic');
-            expect(callbackArguments[1]).toHaveProperties('event','options');
         });
 
         it('topics for handlers registered with the once method should only be triggered once', function(){
@@ -226,7 +263,7 @@ define(['gpub'], function(Gpub) {
             expect(multiple).toHaveBeenCalledThrice();
         });
 
-        it('once handlers should retain the dispatchers scope', function(){
+        it('once handlers should retain the dispatchers scope by default', function(){
             var single = sinon.spy(),
                 multiple = sinon.spy();
 
@@ -260,6 +297,25 @@ define(['gpub'], function(Gpub) {
 
             expect(single).toHaveBeenCalledOnce();
             expect(multiple).toHaveBeenCalledThrice();
+        });
+
+        it('event payload should provide a unregister method', function(){
+            var handler = sinon.spy();
+            item.on('topic', handler);
+            item.emit('topic');
+            expect(handler).toHaveBeenCalled();
+            var event = handler.args[0][0];
+            expect(event).toHaveMethods('unregister');
+        });
+
+        it('event unregister method should unregister handler', function(){
+            var called = 0;
+            item.on('topic', function(e){
+                called++;
+                e.unregister();
+            });
+            item.emit('topic').emit('topic').emit('topic');
+            expect(called).toBe(1);
         });
     });
 });

@@ -43,7 +43,7 @@ define(['gpub'], function(Gpub) {
             var M = function(){this.data={}};
             M.prototype.set = function(key, value){ this.data[key] = value; return this;};
             M.prototype.get = function(key,def){ return this.data[key] || def; };
-            
+
             Gpub.bindable(M.prototype, 'set', 'get');
             var model = new M();
 
@@ -62,7 +62,7 @@ define(['gpub'], function(Gpub) {
             var M = function(){this.data={}};
             M.prototype.set = function(key, value){ this.data[key] = value; return this;};
             M.prototype.get = function(key,def){ return this.data[key] || def; };
-            
+
             Gpub.bindable(M.prototype, 'set', 'get');
             var model = new M();
 
@@ -89,15 +89,15 @@ define(['gpub'], function(Gpub) {
 
         it('should create delegated methods to register callback style', function(){
             var events = ['change', 'sync'];
-            
+
             var M = function(){};
             Gpub.delegable(M.prototype, events);
-            
+
             var user = new M();
 
             expect(user.emits('sync')).toBeFalsy();
             expect(user.emits('change')).toBeFalsy();
-            
+
             user.onchange(null);
             user.onsync(null);
 
@@ -116,12 +116,12 @@ define(['gpub'], function(Gpub) {
 
         it('should trigger delegated methods on emit for registered events', function(){
             var events = ['change', 'sync'];
-            
+
             var M = function(){};
             Gpub.delegable(M.prototype, events);
-            
+
             var user = new M();
-            
+
             var spy = sinon.spy();
 
             user.onchange(spy);
@@ -132,7 +132,5 @@ define(['gpub'], function(Gpub) {
             expect(spy).toHaveBeenCalledTwice();
 
         });
-
-
     });
 });

@@ -95,7 +95,8 @@ define(['gpub'], function(Gpub) {
             var callbackArguments = multiple.args[0];
             expect(multiple).toHaveBeenCalledThrice();
             expect(callbackArguments[0]).toBe('topic');
-            expect(callbackArguments[1]).toHaveProperties('event','options');
+            var props = ['topic', 'target'];
+            expect(callbackArguments[1]).toHaveProperties(props);
         });
 
         it('should have a fluid interface',function(){
@@ -113,15 +114,19 @@ define(['gpub'], function(Gpub) {
             expect(multiple.args[0]).toIncludeObject(['t1',opt]);
         });
 
-        it('should execute in the context of the publisher',function(){
-            var test = {};
-            test.handler = function(){return this;};
-            var spy = sinon.spy(test,'handler');
-            item.subscribe('topic',test.handler);
-
+        it('should execute in the scope of the publisher by default',function(){
+            var spy = sinon.spy();
+            item.subscribe('topic', spy);
             item.publish('topic');
+            expect(spy.calledOn(item)).toBeTruthy();
+        });
 
-            expect(spy.returned(item)).toBeTruthy();
+        it('should execute in the scope provided',function(){
+            var scope = function(){};
+            var spy = sinon.spy();
+            item.on('topic', spy, scope);
+            item.emit('topic');
+            expect(spy.calledOn(scope)).toBeTruthy();
         });
 
         it('shoud include all event props into the options parameter',function(){
@@ -151,7 +156,7 @@ define(['gpub'], function(Gpub) {
 
             item.id = 23;
             item.subscribe('topic', handler.onTopic);
-            item.subscribe('topic',handler.onTopicTwo);
+            item.subscribe('topic', handler.onTopicTwo);
 
             item.publish('topic', {age:1});
 
@@ -162,11 +167,55 @@ define(['gpub'], function(Gpub) {
 
             expect(handler.id).toBeTruthy();
             expect(handler.id).toEqual(item.id);
-            expect(spy.args[0][0]).toHaveProperties('target','event');
+            var props = ['topic', 'target'];
+            expect(spy.args[0][0]).toHaveProperties(props);
+        });
+
+        it('emits should let you know if a topic is registered', function(){
+            var spy = sinon.spy();
+            item.on('topic', spy);
+            expect(item.emits('topic')).toBeTruthy();
+            expect(item.emits('NOTHING')).toBeFalsy();
+        });
+
+        it('emits should let you know if a topic is registered once', function(){
+            var spy = sinon.spy();
+            item.once('topic', spy);
+            expect(item.emits('topic')).toBeTruthy();
+            expect(item.emits('NOTHING')).toBeFalsy();
+        });
+
+        it('emits should let you know if a topic is registered after once', function(){
+            var spy = sinon.spy();
+            item.once('topic', spy);
+            expect(item.emits('topic')).toBeTruthy();
+            item.emit('topic');
+            expect(item.emits('topic')).toBeFalsy();
+        });
+
+        it('emits should work with unregister', function(){
+            item.on('topic', function(e){
+                e.unregister();
+            });
+            expect(item.emits('topic')).toBeTruthy();
+            item.emit('topic');
+            expect(item.emits('topic')).toBeFalsy();
         });
 //////////////////////////////////////////////////////
 /// NEW API
 //////////////////////////////////////////////////////
+        it('event paramter should include the options object passed during registration',function(){
+            var options = {foo:'baz'};
+            var event = {bar:'lorem'};
+            var spy = function(e){
+                expect(e).toHaveProperties('foo', 'bar');
+                expect(e.bar).toMatch(event.bar);
+                expect(e.foo).toMatch(options.foo);
+            };
+            item.on('topic', spy, spy, options);
+            item.emit('topic', event);
+        });
+
         it('should execute in the context of the publisher',function(){
             var test = {};
             test.handler = function(){return this;};
@@ -201,7 +250,7 @@ define(['gpub'], function(Gpub) {
             item.on('all',multiple);
             item.on('topic',single);
 
-            item.emit('topic',options);
+            item.emit('topic', options);
             item.emit('topic2',options);
             item.emit('topic3',options);
 
@@ -211,7 +260,29 @@ define(['gpub'], function(Gpub) {
             var callbackArguments = multiple.args[0];
             expect(multiple).toHaveBeenCalledThrice();
             expect(callbackArguments[0]).toBe('topic');
-            expect(callbackArguments[1]).toHaveProperties('event','options');
+            var props = ['topic', 'target'];
+            expect(callbackArguments[1]).toHaveProperties(props);
+            // expect(callbackArguments[1]).toHaveProperties('event','options');
         });
+
+        it('event payload should provide a unregister method', function(){
+            var handler = sinon.spy();
+            item.on('topic', handler);
+            item.emit('topic');
+            expect(handler).toHaveBeenCalled();
+            var event = handler.args[0][0];
+            expect(event).toHaveMethods('unregister');
+        });
+
+        it('event unregister method should unregister handler', function(){
+            var called = 0;
+            item.on('topic', function(e){
+                called++;
+                e.unregister();
+            });
+            item.emit('topic').emit('topic').emit('topic');
+            expect(called).toBe(1);
+        });
+
     });
 });
