@@ -341,7 +341,7 @@ define('gpub', function() {
      *         return this;
      *     };
      *     Model.prototype.get = function(key, def){
-     *         return this.data[key] || def;
+     *         return this.data.hasOwnProperty(key) ? this.data[key] : def;
      *     };
      *     Gpub.bindable(Model.prototype, 'set', 'get');
      * ```
