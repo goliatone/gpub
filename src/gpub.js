@@ -106,6 +106,10 @@ define('gpub', function() {
      */
     var Gpub = function() {};
 
+    /**
+     * Current VERSION
+     */
+    Gpub.VERSION = '0.3.3';
 
 
     ////////////////////////////////////////////////////////
