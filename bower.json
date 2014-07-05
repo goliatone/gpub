@@ -1,6 +1,6 @@
 {
   "name": "gpub.js",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "main": [
     "./dist/gpub.min.js",
     "./dist/gpub.js"
