@@ -172,7 +172,7 @@ define('gpub', function() {
         listener.options = options;
         // event.options = options || {};//_merge((options || {}),{target:this});
         callback.__id__ = Gpub.uid();
-        topics.push(event);
+        topics.push(listener);
 
         return this;
     };
@@ -221,9 +221,9 @@ define('gpub', function() {
 
         if (!(list = calls[topic]) && !calls['all']) return this;
 
-        if ((all = calls['all'])) _publish(all, _slice.call(arguments, 0), event);
+        if ((all = calls['all'])) _publish(all.concat(), _slice.call(arguments, 0), event);
 
-        if (list) _publish(list, args, event);
+        if (list) _publish(list.concat(), args, event);
 
         return this;
     };
