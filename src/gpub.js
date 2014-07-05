@@ -10,17 +10,22 @@
 /*global define:true*/
 /* jshint strict: false */
 define('gpub', function() {
-////////////////////////////////////////////////////////
-/// PRIVATE METHODS
-////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    /// PRIVATE METHODS
+    ////////////////////////////////////////////////////////
     /*
      * TODO: Review paramters, "o" seems to be included in args!
      */
-    var _publish = function(list, args, o){
-        var e, i = -1, l = list.length,
-            a1 = args[0], a2 = args[1], a3 = args[2],
-            _u = function(){e.target.off(e.topic, e.callback)},
-            _a = function(e){
+    var _publish = function(list, args, o) {
+        var e, i = -1,
+            l = list.length,
+            a1 = args[0],
+            a2 = args[1],
+            a3 = args[2],
+            _u = function() {
+                e.target.off(e.topic, e.callback)
+            },
+            _a = function(e) {
                 // o.event = e;
                 o.topic = e.topic;
                 o.target = e.target;
@@ -28,30 +33,55 @@ define('gpub', function() {
                 e.options && _mixin(o, e.options);
             };
 
-        switch(args.length){
-            case 0: while(++i < l){
-                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope) === false) break;
-            } return;
-            case 1: while(++i < l){
-                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope, a1) === false) break;
-            } return;
-            case 2: while(++i < l){
-                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope, a1, a2) === false) break;
-            } return;
-            case 3: while(++i < l){
-                e = list[i]; if(!e) continue; _a(e); if(e.callback.call(e.scope, a1, a2, a3) === false) break;
-            } return;
-            default: while(++i < l){
-                e = list[i]; if(!e) continue; _a(e); if(e.callback.apply(e.scope, args) === false) break;
-            } return;
+        switch (args.length) {
+            case 0:
+                while (++i < l) {
+                    e = list[i];
+                    if (!e) continue;
+                    _a(e);
+                    if (e.callback.call(e.scope) === false) break;
+                }
+                return;
+            case 1:
+                while (++i < l) {
+                    e = list[i];
+                    if (!e) continue;
+                    _a(e);
+                    if (e.callback.call(e.scope, a1) === false) break;
+                }
+                return;
+            case 2:
+                while (++i < l) {
+                    e = list[i];
+                    if (!e) continue;
+                    _a(e);
+                    if (e.callback.call(e.scope, a1, a2) === false) break;
+                }
+                return;
+            case 3:
+                while (++i < l) {
+                    e = list[i];
+                    if (!e) continue;
+                    _a(e);
+                    if (e.callback.call(e.scope, a1, a2, a3) === false) break;
+                }
+                return;
+            default:
+                while (++i < l) {
+                    e = list[i];
+                    if (!e) continue;
+                    _a(e);
+                    if (e.callback.apply(e.scope, args) === false) break;
+                }
+                return;
         }
     };
 
-    var _mixin = function(target, source){
+    var _mixin = function(target, source) {
 
-        if(typeof target === 'function') target = target.prototype;
+        if (typeof target === 'function') target = target.prototype;
         //TODO: Should we do Gpub.methods = ['on', 'off', 'emit', 'emits'];?
-        Object.keys(source).forEach(function(method){
+        Object.keys(source).forEach(function(method) {
             target[method] = source[method];
         });
         return target;
@@ -60,7 +90,8 @@ define('gpub', function() {
     var _debounce = function(func, wait, immediate) {
         var timeout;
         return function() {
-            var context = this, args = arguments;
+            var context = this,
+                args = arguments;
             var later = function() {
                 timeout = null;
                 if (!immediate) func.apply(context, args);
@@ -95,34 +126,34 @@ define('gpub', function() {
     };*/
 
     var _slice = [].slice;
-////////////////////////////////////////////////////////
-/// CONSTRUCTOR
-////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    /// CONSTRUCTOR
+    ////////////////////////////////////////////////////////
 
-   /**
-    * Gpub is a simple pub sub library.
-    * @class Gpub
-    * @constructor
-    */
-    var Gpub = function(){};
+    /**
+     * Gpub is a simple pub sub library.
+     * @class Gpub
+     * @constructor
+     */
+    var Gpub = function() {};
 
 
 
-////////////////////////////////////////////////////////
-/// PUBLIC METHODS
-////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    /// PUBLIC METHODS
+    ////////////////////////////////////////////////////////
 
-   /**
-    * Register an event listener.
-    * @param  {String}   topic    String indicating the event type
-    * @param  {Function} callback Callback to handle event topics.
-    * @param  {Object}   scope    We can dynamically change the scope of
-    *                             the handler.
-    * @param  {Object}   options  Options object that will be sent with the
-    *                             event to all handler callbacks.
-    * @return {this}
-    */
-    Gpub.prototype.on = function(topic, callback, scope, options){
+    /**
+     * Register an event listener.
+     * @param  {String}   topic    String indicating the event type
+     * @param  {Function} callback Callback to handle event topics.
+     * @param  {Object}   scope    We can dynamically change the scope of
+     *                             the handler.
+     * @param  {Object}   options  Options object that will be sent with the
+     *                             event to all handler callbacks.
+     * @return {this}
+     */
+    Gpub.prototype.on = function(topic, callback, scope, options) {
         //Create _callbacks, unless we have it
         var topics = this.callbacks(topic);
 
@@ -149,7 +180,7 @@ define('gpub', function() {
      * @param  {String} topic Event type.
      * @return {this}
      */
-    Gpub.prototype.emits = function(topic){
+    Gpub.prototype.emits = function(topic) {
 
         return this.callbacks().hasOwnProperty(topic) && this.callbacks(topic).length > 0;
     };
@@ -165,7 +196,7 @@ define('gpub', function() {
      *                          registered with `topic`.
      * @return {this}
      */
-    Gpub.prototype.emit = function(topic, event){
+    Gpub.prototype.emit = function(topic, event) {
         //TODO: Review WTF is going on with arguments here and _publish!!
         //Turn args obj into real array
         var args = _slice.call(arguments, 1);
@@ -178,13 +209,13 @@ define('gpub', function() {
 
         var list, calls, all;
 
-        if(!(calls = this.callbacks())) return this;
+        if (!(calls = this.callbacks())) return this;
 
-        if(!(list = calls[topic]) && !calls['all']) return this;
+        if (!(list = calls[topic]) && !calls['all']) return this;
 
-        if((all = calls['all'])) _publish(all, _slice.call(arguments, 0), event);
+        if ((all = calls['all'])) _publish(all, _slice.call(arguments, 0), event);
 
-        if(list) _publish(list, args, event);
+        if (list) _publish(list, args, event);
 
         return this;
     };
@@ -201,20 +232,20 @@ define('gpub', function() {
      * @param  {Function} callback Listener we want to remove.
      * @return {this}
      */
-    Gpub.prototype.off = function(topic, callback/*, scope*/){
+    Gpub.prototype.off = function(topic, callback /*, scope*/ ) {
 
         var list, calls, i, l;
 
         //TODO: Should we make a different Gpub::stop() method?
-        if(!topic && !callback) this._callbacks = {};
+        if (!topic && !callback) this._callbacks = {};
 
-        if(!(calls = this.callbacks())) return this;
+        if (!(calls = this.callbacks())) return this;
 
-        if(!(list  = calls[topic])) return this;
+        if (!(list = calls[topic])) return this;
 
-        for(i = 0, l = list.length; i < l; i++){
+        for (i = 0, l = list.length; i < l; i++) {
             //Remove empty refs, and our callback event listener.
-            if(!list[i] || list[i].callback === callback) list.splice(i, 1);
+            if (!list[i] || list[i].callback === callback) list.splice(i, 1);
         }
 
         return this;
@@ -232,18 +263,18 @@ define('gpub', function() {
      * @return {Object|Array}
      * @private
      */
-    Gpub.prototype.callbacks = function(topic){
+    Gpub.prototype.callbacks = function(topic) {
         this._callbacks = this._callbacks || {};
-        if(!topic) return this._callbacks;
+        if (!topic) return this._callbacks;
         return this._callbacks[topic] || (this._callbacks[topic] = []);
     };
 
-    Gpub.prototype.once = function(topic, callback, scope, options){
+    Gpub.prototype.once = function(topic, callback, scope, options) {
 
-        if(!callback || !topic) return this;
+        if (!callback || !topic) return this;
         scope = scope || this;
 
-        var handler = (function (){
+        var handler = (function() {
             arguments[0].unregister();
             callback.apply(scope, arguments);
         });
@@ -270,16 +301,16 @@ define('gpub', function() {
      *                             event to all handler callbacks.
      * @return {this}
      */
-    Gpub.prototype.debounce = function(topic, callback, wait, scope, options){
-        if(wait === undefined) wait = 1;
+    Gpub.prototype.debounce = function(topic, callback, wait, scope, options) {
+        if (wait === undefined) wait = 1;
         var handler = _debounce(callback, wait, true);
         this.on(topic, handler, scope, options);
         return this;
     };
 
-////////////////////////////////////////////////////////
-/// STATIC METHODS
-////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    /// STATIC METHODS
+    ////////////////////////////////////////////////////////
     /**
      * Observable mixin. It will add `Gpub` methods
      * to the given `target`.
@@ -297,7 +328,7 @@ define('gpub', function() {
      * @param  {Object|Function} target
      * @return {Object|Function} Returns the given object.
      */
-    Gpub.observable = function(target){
+    Gpub.observable = function(target) {
         return _mixin(target || {}, Gpub.prototype);
     };
 
@@ -332,22 +363,24 @@ define('gpub', function() {
      *                               event types.
      * @return {Object}              Returns passed in object.
      */
-    Gpub.delegable = function(src, events, eventBuilder, glue){
+    Gpub.delegable = function(src, events, eventBuilder, glue) {
         //TODO: DRY, make check all methods!!
-        if(!('on' in src) || !('emit' in src)) this.observable(src);
+        if (!('on' in src) || !('emit' in src)) this.observable(src);
 
-        eventBuilder || (eventBuilder = function(e){ return 'on'+e;});
+        eventBuilder || (eventBuilder = function(e) {
+            return 'on' + e;
+        });
 
-        if(typeof events === 'string') events = events.split(glue || ' ');
+        if (typeof events === 'string') events = events.split(glue || ' ');
 
         var method, bind = typeof src === 'function';
-        events.forEach(function(event){
-            method = function(handler){
-                if(!handler) return this;
+        events.forEach(function(event) {
+            method = function(handler) {
+                if (!handler) return this;
                 this.on(event, handler);
                 return this;
             };
-            if(bind) method.bind(src);
+            if (bind) method.bind(src);
             src[eventBuilder(event)] = method;
         });
 
@@ -382,45 +415,50 @@ define('gpub', function() {
      * @param  {Boolean} bind Should we bind the generated method?
      * @return {Object}      Returns the passed in object.
      */
-    Gpub.bindable = function(src, set, get, bind){
+    Gpub.bindable = function(src, set, get, bind) {
         // var bind = (typeof src === 'function');
         // src = bind ? src.prototype : src;
         //TODO: DRY, make check all methods!!
-        if(!('on' in src) || !('emit' in src)) this.observable(src);
+        if (!('on' in src) || !('emit' in src)) this.observable(src);
 
-        var _set = src[set || 'set'], _get = src[get || 'get'];
+        var _set = src[set || 'set'],
+            _get = src[get || 'get'];
 
-        var method = function(key, value){
+        var method = function(key, value) {
             var old = _get.call(this, key),
                 out = _set.call(this, key, value),
                 //TODO: _buildEvent({old:old, value:value, target:this});
-                evt = {old:old, value:value, property:key};
+                evt = {
+                    old: old,
+                    value: value,
+                    property: key
+                };
 
-            if(old === value) return out;
+            if (old === value) return out;
 
             if (this.emits('change')) this.emit('change', evt);
-            if (this.emits('change:' + key)) this.emit('change:'+key, evt);
+            if (this.emits('change:' + key)) this.emit('change:' + key, evt);
             return out;
         };
 
-        if(bind) method.bind(src);
+        if (bind) method.bind(src);
 
         src[set] = method;
 
         return src;
     };
 
-////////////////////////////////////////////////////////
-/// LEGACY METHODS: This will be removed soon.
-////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////
+    /// LEGACY METHODS: This will be removed soon.
+    ////////////////////////////////////////////////////////
     /*
      * This is so that we can keep backwards compatibility
      * with old API. It will be removed soon!
      */
     /**@deprecated*/
-    Gpub.prototype.publish     = Gpub.prototype.emit;
+    Gpub.prototype.publish = Gpub.prototype.emit;
     /**@deprecated*/
-    Gpub.prototype.subscribe   = Gpub.prototype.on;
+    Gpub.prototype.subscribe = Gpub.prototype.on;
     /**@deprecated*/
     Gpub.prototype.unsubscribe = Gpub.prototype.off;
     /**@deprecated*/
