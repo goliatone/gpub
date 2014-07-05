@@ -283,6 +283,22 @@ define(function(require) {
             expect(multiple).toHaveBeenCalledThrice();
         });
 
+        it('unregistering topics for once and on methods should not interfere', function() {
+            var once = sinon.spy(),
+                one = sinon.spy(),
+                two = sinon.spy();
+
+            item.on('update', one)
+            item.once('update', once);
+            item.on('update', two)
+
+            item.emit('update');
+
+            expect(once).toHaveBeenCalledOnce();
+            expect(one).toHaveBeenCalledOnce();
+            expect(two).toHaveBeenCalledOnce();
+        });
+
         it('once handlers should retain the dispatchers scope by default', function() {
             var single = sinon.spy(),
                 multiple = sinon.spy();
