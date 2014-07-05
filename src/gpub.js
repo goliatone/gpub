@@ -137,6 +137,10 @@ define('gpub', function() {
      */
     var Gpub = function() {};
 
+    /**
+     * Current VERSION
+     */
+    Gpub.VERSION = '0.3.4';
 
 
     ////////////////////////////////////////////////////////
@@ -167,10 +171,14 @@ define('gpub', function() {
         listener.target = this;
         listener.options = options;
         // event.options = options || {};//_merge((options || {}),{target:this});
-
-        topics.push(listener);
+        callback.__id__ = Gpub.uid();
+        topics.push(event);
 
         return this;
+    };
+    var UID = 0;
+    Gpub.uid = function() {
+        return ++UID;
     };
 
     /**
@@ -402,7 +410,7 @@ define('gpub', function() {
      *         return this;
      *     };
      *     Model.prototype.get = function(key, def){
-     *         return this.data[key] || def;
+     *         return this.data.hasOwnProperty(key) ? this.data[key] : def;
      *     };
      *     Gpub.bindable(Model.prototype, 'set', 'get');
      * ```
@@ -416,6 +424,8 @@ define('gpub', function() {
      * @return {Object}      Returns the passed in object.
      */
     Gpub.bindable = function(src, set, get, bind) {
+        if (!src) return this.logger.warn('Gpub.bindable: src undefined');
+
         // var bind = (typeof src === 'function');
         // src = bind ? src.prototype : src;
         //TODO: DRY, make check all methods!!
@@ -447,6 +457,12 @@ define('gpub', function() {
 
         return src;
     };
+
+    /**
+     * Logger stub method.
+     * Console might need to be shimmed.
+     */
+    Gpub.prototype.logger = console;
 
     ////////////////////////////////////////////////////////
     /// LEGACY METHODS: This will be removed soon.
