@@ -109,7 +109,7 @@ define('gpub', function() {
     /**
      * Current VERSION
      */
-    Gpub.VERSION = '0.3.3';
+    Gpub.VERSION = '0.3.4';
 
 
     ////////////////////////////////////////////////////////
@@ -139,10 +139,14 @@ define('gpub', function() {
         event.scope = scope || this;
         event.target = this;
         // event.options = options || {};//_merge((options || {}),{target:this});
-
+        callback.__id__ = Gpub.uid();
         topics.push(event);
 
         return this;
+    };
+    var UID = 0;
+    Gpub.uid = function() {
+        return ++UID;
     };
 
     /**
@@ -187,9 +191,9 @@ define('gpub', function() {
         //if global handlers, append to list.
         //if((all = calls['all'])) list = (list || []).concat(all);
 
-        if ((all = calls['all'])) _publish(all, _slice.call(arguments, 0), options);
-        // if((all = calls['all'])) _publish.call(this, all, [topic].concat(args));
-        if (list) _publish(list, args, options);
+        if ((all = calls['all'])) _publish(all.concat(), _slice.call(arguments, 0), options);
+
+        if (list) _publish(list.concat(), args, options);
 
         return this;
     };
