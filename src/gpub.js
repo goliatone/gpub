@@ -188,10 +188,9 @@ define('gpub', function() {
         if (!(calls = this.callbacks())) return this;
         //get listeners, if none and no global handlers, return.
         if (!(list = calls[topic]) && !calls['all']) return this;
-        //if global handlers, append to list.
-        //if((all = calls['all'])) list = (list || []).concat(all);
 
-        if ((all = calls['all'])) _publish(all.concat(), args, options);
+        //if global handlers, append to list.
+        if((all = calls['all'])) list = (list || []).concat(all);
 
         if (list) _publish(list.concat(), args, options);
 
