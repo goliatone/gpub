@@ -95,9 +95,10 @@ define(['gpub'], function(Gpub) {
             // expect(single).toHaveBeenCalledWith(options);
 
             var callbackArguments = multiple.args[0];
+            var e = callbackArguments[0];
             expect(multiple).toHaveBeenCalledThrice();
-            expect(callbackArguments[0]).toBe('topic');
-            expect(callbackArguments[1]).toHaveProperties('event','options');
+            expect(e.event.topic).toBe('all');
+            expect(e).toHaveProperties('event', 'options');
         });
 
         it('should have a fluid interface',function(){
@@ -112,7 +113,6 @@ define(['gpub'], function(Gpub) {
             expect(single).toHaveBeenCalledWith(opt);
 
             expect(multiple).toHaveBeenCalledThrice();
-            expect(multiple.args[0]).toIncludeObject(['t1',opt]);
         });
 
         it('should execute in the context of the publisher',function(){
@@ -192,7 +192,6 @@ define(['gpub'], function(Gpub) {
             expect(single).toHaveBeenCalledWith(opt);
 
             expect(multiple).toHaveBeenCalledThrice();
-            expect(multiple.args[0]).toIncludeObject(['t1',opt]);
         });
 
         it('should route all notices to a single handler if subscribed to the * channel',function(){
@@ -211,9 +210,10 @@ define(['gpub'], function(Gpub) {
             // expect(single).toHaveBeenCalledWith(options);
 
             var callbackArguments = multiple.args[0];
+            var e = callbackArguments[0];
             expect(multiple).toHaveBeenCalledThrice();
-            expect(callbackArguments[0]).toBe('topic');
-            expect(callbackArguments[1]).toHaveProperties('event','options');
+            expect(e.event.topic).toBe('all');
+            expect(e).toHaveProperties('event', 'options');
         });
     });
 });
