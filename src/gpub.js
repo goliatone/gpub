@@ -109,7 +109,7 @@ define('gpub', function() {
     /**
      * Current VERSION
      */
-    Gpub.VERSION = '0.3.4';
+    Gpub.VERSION = '0.3.5';
 
 
     ////////////////////////////////////////////////////////
@@ -191,7 +191,7 @@ define('gpub', function() {
         //if global handlers, append to list.
         //if((all = calls['all'])) list = (list || []).concat(all);
 
-        if ((all = calls['all'])) _publish(all.concat(), _slice.call(arguments, 0), options);
+        if ((all = calls['all'])) _publish(all.concat(), args, options);
 
         if (list) _publish(list.concat(), args, options);
 
