@@ -214,6 +214,7 @@ You can check out the contents of the examples folder.
 
 ## Release History
 
+* `v0.3.7`: Added "topic" and "unregister" function to event obj.
 * `v0.3.6`: Added method "multi".
 * `v0.3.0`: Added mixin.
 * `v0.2.0`: Update API.
