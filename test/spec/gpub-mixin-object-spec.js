@@ -213,5 +213,89 @@ define(['gpub'], function(Gpub) {
             expect(e.event.topic).toBe('all');
             expect(e).toHaveProperties('event', 'options');
         });
+
+        it('should register any of the topics passed in as an array', function(){
+            var handler = sinon.spy();
+            var types = ['topic0', 'topic1', 'topic2'];
+
+            item.multi(types, handler);
+
+            types.forEach(function(type){
+                item.emit(type);
+            });
+
+            expect(handler).toHaveBeenCalledThrice();
+        });
+
+        it('should register any of the topics passed in as a string', function(){
+            var handler = sinon.spy();
+            var types = ['topic0', 'topic1', 'topic2'];
+
+            item.multi(types.join(' '), handler);
+
+            types.forEach(function(type){
+                item.emit(type);
+            });
+
+            expect(handler).toHaveBeenCalledThrice();
+        });
+
+        it('it should unregister listeners with "off"', function(done) {
+            var called = 0;
+            function handler(){
+                called++;
+                item.off('update', handler);
+            }
+
+            item.on('update', handler);
+
+            runs(function(){
+                item.emit('update').emit('update').emit('update');
+                expect(called).toEqual(1);
+            });
+        });
+
+        it('it should unregister listeners with the event unregister method', function(done) {
+            var called = 0;
+            function handler(e){
+                called++;
+                e.unregister();
+            }
+
+            item.on('update', handler);
+
+            runs(function(){
+                item.emit('update').emit('update').emit('update');
+                expect(called).toEqual(1);
+            });
+        });
+    });
+
+    describe('event payload', function(){
+        it('should have a "topic" property matching event type', function(){
+            var eventType = 'eventType';
+            item.on(eventType, function(e){
+                expect(e.topic).toEqual(eventType);
+            });
+            item.emit(eventType);
+        });
+
+        it('should have an "unregister" function', function(){
+            var eventType = 'eventType';
+            item.on(eventType, function(e){
+                expect(e.unregister).toBeOfType('function');
+            });
+            item.emit(eventType);
+        });
+
+        it('should have a "target" property', function(){
+            var eventType = 'eventType';
+
+            item.on(eventType, function(e){
+                expect(e.target).toBeTruthy();
+            });
+
+            item.emit(eventType);
+        });
     });
 });
