@@ -18,10 +18,10 @@ define(['gpub'], function (Gpub) {
 	};
 	User.prototype.set = function(key, value){ this.data[key] = value; return this;};
     User.prototype.get = function(key, def){ return this.data[key] || def; };
-            
+
 	Gpub.observable(User);
 	Gpub.bindable(User.prototype, 'set', 'get');
-	
+
 	var events = 'change update sync';
 	Gpub.delegable(User.prototype, events);
 
@@ -41,12 +41,19 @@ define(['gpub'], function (Gpub) {
 		console.log('Key event, change:name', event.value);
 	});
 
+	pepe.any('change change:name change:age change:email', function(e){
+		console.log('Changed any:', e.event.topic)
+	});
+
 	var pipo = new User('pipo');
 
 	pipo.on('change', function(event){
 		console.log('Hello, Im', this.get('name'));
 		console.log(event);
 	});
+
+
+
 
 	pepe.set('name', 'Pepe')
 		.set('age', 23)
