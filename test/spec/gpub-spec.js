@@ -291,5 +291,46 @@ define(['gpub'], function(Gpub) {
             expect(single).toHaveBeenCalledOnce();
             expect(multiple).toHaveBeenCalledThrice();
         });
+
+        it('should register any of the topics passed in as an array', function(){
+            var handler = sinon.spy();
+            var types = ['topic0', 'topic1', 'topic2'];
+
+            item.multi(types, handler);
+
+            types.forEach(function(type){
+                item.emit(type);
+            });
+
+            expect(handler).toHaveBeenCalledThrice();
+        });
+
+        it('should register any of the topics passed in as a string', function(){
+            var handler = sinon.spy();
+            var types = ['topic0', 'topic1', 'topic2'];
+
+            item.multi(types.join(' '), handler);
+
+            types.forEach(function(type){
+                item.emit(type);
+            });
+
+            expect(handler).toHaveBeenCalledThrice();
+        });
+
+        it('it should unregister listeners with "off"', function(done) {
+            var called = 0;
+            function handler(){
+                called++;
+                item.off('update', handler);
+            }
+
+            item.on('update', handler);
+
+            runs(function(){
+                item.emit('update').emit('update').emit('update');
+                expect(called).toEqual(1);
+            });
+        });
     });
 });

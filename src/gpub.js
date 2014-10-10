@@ -95,6 +95,11 @@ define('gpub', function() {
     };
 
     var _slice = [].slice;
+
+    var _isArray = function(obj){
+        return obj.push && obj.length != null;
+    };
+
     ////////////////////////////////////////////////////////
     /// CONSTRUCTOR
     ////////////////////////////////////////////////////////
@@ -139,11 +144,31 @@ define('gpub', function() {
         event.scope = scope || this;
         event.target = this;
         // event.options = options || {};//_merge((options || {}),{target:this});
-        callback.__id__ = Gpub.uid();
+        callback.__id__ || (callback.__id__ = Gpub.uid());
         topics.push(event);
 
         return this;
     };
+
+    /**
+     * Attaches a single handler to multiple topics
+     * @param  {String|Array}   topics   List of topics
+     * @param  {Function} callback Handler
+     * @param  {Object}   scope    Callback scope
+     * @param  {Object}   options  Options object
+     * @return {this}
+     */
+    Gpub.prototype.multi = function(topics, callback, scope, options){
+        if(typeof topics === 'string') topics = topics.split(/\s/);
+        if(! _isArray(topics)) return this.logger.error('Event types must be an array or a string with space delimited event types');
+
+        topics.forEach(function(topic){
+            this.on(topic, callback, scope, options);
+        }, this);
+
+        return this;
+    };
+
     var UID = 0;
     Gpub.uid = function() {
         return ++UID;
