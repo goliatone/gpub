@@ -41,7 +41,7 @@ define(['gpub'], function (Gpub) {
 		console.log('Key event, change:name', event.value);
 	});
 
-	pepe.any('change change:name change:age change:email', function(e){
+	pepe.multi('change change:name change:age change:email', function(e){
 		console.log('Changed any:', e.event.topic)
 	});
 
