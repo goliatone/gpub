@@ -19,8 +19,13 @@ define('gpub', function() {
             a1 = args[0],
             a2 = args[1],
             a3 = args[2],
+            _u = function() {
+                e.target.off(e.topic, e.callback)
+            },
             _a = function(e) {
                 o.event = e;
+                o.topic = e.topic;
+                o.unregister = _u;
                 o.target = e.target;
             };
 
@@ -276,12 +281,9 @@ define('gpub', function() {
         if (!callback || !topic) return this;
         scope || (scope = this);
 
-        //I dislike using "self" outside python. But so far it seems
-        //the only way to deal with this scope shenanigan
-        var self = this;
         var handler = (function() {
+            arguments[0].unregister();
             callback.apply(scope, arguments);
-            self.off(topic, handler);
         });
 
         this.on(topic, handler, scope, options);
