@@ -114,7 +114,7 @@ define('gpub', function() {
     /**
      * Current VERSION
      */
-    Gpub.VERSION = '0.3.5';
+    Gpub.VERSION = '0.3.6';
 
 
     ////////////////////////////////////////////////////////
