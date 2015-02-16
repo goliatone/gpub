@@ -1,8 +1,8 @@
 # Gpub
 
-[![Build Status](https://secure.travis-ci.org/goliatone/gpub.png)](http://travis-ci.org/goliatone/gpub)
-
 Tiny PubSub module.
+
+[![Build Status](https://secure.travis-ci.org/goliatone/gpub.png)](http://travis-ci.org/goliatone/gpub)
 
 ## Getting Started
 Download the [production version][min] or the [development version][max].
