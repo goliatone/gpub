@@ -25,3 +25,9 @@ Gpub.prototype.on = function(topic, callback, options)
 ### Utils:
 ~Make observable~
 - ~get/set~
+
+
+API:
+- [eventproxy][ep]
+
+[ep]: https://github.com/JacksonTian/eventproxy/blob/master/lib/eventproxy.js
